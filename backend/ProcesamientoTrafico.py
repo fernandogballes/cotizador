@@ -6,6 +6,8 @@ import json
 import unicodedata
 import Funciones
 
+
+#cambiar a miles
 def accidentes_trafico_procces(folder_path):
     df = pd.read_csv(folder_path, sep=',', dtype=str)
 
@@ -28,19 +30,11 @@ def accidentes_trafico_procces(folder_path):
     df_total = pd.concat([df_provincias, df_comunidades])
 
     df_total.sort_values(by=['comunidad_autonoma', 'anio'], inplace=True)
-    df_total = standardization_comunidades_provincias(df_total)
+    df_total = Funciones.standard(df_total)
     df_total = df_total.drop_duplicates()
+    df_total ['numero'] = df_total['numero'].astype(float)/1000
 
     return df_total
-
-def standardization_comunidades_provincias(df):
-    df_standared = df.copy()
-
-    with open('backend/diccionario_estandar_comunidades.json', 'r') as file: comunidades_dict = json.load(file)
-    columns_replace = ['provincia', 'comunidad_autonoma']
-    df_standared[columns_replace] = df_standared[columns_replace].replace(comunidades_dict)
-
-    return df_standared
 
 def create_accidentes_trafico():
     df = accidentes_trafico_procces('datos/accidentes trafico/Accidentes_victimas_Carr__CCAA_provincia (1).csv')
