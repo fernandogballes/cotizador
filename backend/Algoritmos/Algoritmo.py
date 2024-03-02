@@ -16,12 +16,22 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 #Imports K-MEANS
+from sklearn import metrics
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import pairwise_distances
+from tensorflow import keras
+from keras import layers
+from keras.models import Sequential
+from keras.layers import Dense
+
 
 
 def create_danger_index():
@@ -116,6 +126,65 @@ def elbow_method(df_codec):
     plt.title('Método del Codo')
     plt.show()
 
+def dbscan(df):
+    X_scaled = encoder_scaler(df)
+    eps_values = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    min_samples_values = [5, 10, 50]
+
+    results = []
+
+    for eps in eps_values:
+        for min_samples in min_samples_values:
+            dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+            clusters = dbscan.fit_predict(X_scaled)
+            inertia = pairwise_distances(X_scaled, metric='euclidean', squared=True).min(axis=1).sum()
+
+            # Almacenar los resultados en un array
+            results.append({'eps': eps, 'min_samples': min_samples, 'inertia': inertia})
+
+    eps_values = [res['eps'] for res in results]
+    min_samples_values = [res['min_samples'] for res in results]
+    inertia_values = [res['inertia'] for res in results]
+
+    # Crear un gráfico 3D para visualizar la relación entre eps, min_samples y la inercia
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(eps_values, min_samples_values, inertia_values, c='r', marker='o')
+
+    ax.set_xlabel('Eps')
+    ax.set_ylabel('Min Samples')
+    ax.set_zlabel('Inertia')
+
+    plt.show()
+
+def neuronal_network(df):
+    X_scaled = encoder_scaler(df)  
+    y = df['danger_index']  
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
+
+    model = keras.Sequential([
+      layers.Dense(4, activation='relu'),
+      layers.Dense(4, activation='relu'),
+      layers.Dense(1, activation = 'linear')
+      ])
+
+    model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
+
+    # Entrenar el modelo
+    model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), verbose = 0) # verbose=0
+
+    predictions = model.predict(X_test)
+    predictions = predictions.flatten()
+    y_pred = predictions
+
+    mae_dict_1 = metrics.mean_absolute_error(y_test, y_pred)
+    r2_dict_1 =  metrics.r2_score(y_test, y_pred)
+    print(f"MAE = {mae_dict_1}, R^2 = {r2_dict_1}")
+
+    model.save('results/red_neuronal')
+
+    return 1
+
 
 if __name__ == '__main__':
-    kmeans(create_danger_index())
+    neuronal_network(create_danger_index())
