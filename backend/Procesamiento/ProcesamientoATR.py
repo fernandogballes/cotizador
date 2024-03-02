@@ -49,7 +49,7 @@ def atr_process_unit_2014_2022(excel_path):
     anio = df['Unnamed: 7'][5]
     process_df['anio'] = int(anio[4:])
 
-    process_df = Funciones.standard(process_df)
+    process_df = Funciones.standard_comunidades_provincias(process_df)
 
     return process_df
 
@@ -96,7 +96,7 @@ def atr_process_unit_2001_2002(excel_path):
 
     process_df['anio'] = int(anio)  
 
-    process_df = Funciones.standard(process_df)
+    process_df = Funciones.standard_comunidades_provincias(process_df)
     
     return process_df
 
@@ -139,7 +139,7 @@ def atr_multi_sheets_files_2003_2013(file, anio):
     process_df = process_df.infer_objects(copy=True).replace([' -', '-'], '0')
     process_df[cols_to_replace] = process_df[cols_to_replace].astype(int) 
 
-    process_df = Funciones.standard(process_df)
+    process_df = Funciones.standard_comunidades_provincias(process_df)
 
     return process_df
        
@@ -176,20 +176,6 @@ def create_atr_2001_2022():
 
 if __name__ == '__main__':
     create_atr_2001_2022()
-    """ df_1 = pd.read_excel('results/SILVER/ATR_2001_2022.xlsx')
-    print('atr 1: ', df_1[(df_1['provincia']=='ceuta') & (df_1['anio']==2003)])
-    df_2 = pd.read_excel('results/SILVER/ATR_2001_2022_1.xlsx')
-    print('\n\natr 2: ', df_2[(df_2['provincia']=='ceuta') & (df_2['anio']==2003)])
-
-    merged_df = df_1.merge(df_2, how='outer', indicator=True)
-
-    # Filtrar las filas que tienen diferencias
-    diferencias = merged_df[merged_df['_merge'] != 'both']
-
-    # Mostrar las diferencias
-    print("Diferencias entre los DataFrames:")
-    print(diferencias)
-    print(df_1.equals(df_2)) """
 
 
 

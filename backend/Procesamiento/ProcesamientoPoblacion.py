@@ -15,7 +15,7 @@ def poblacion_activa_ocupada_process(df):
     df['provincia'] = df['provincia'].apply(lambda x: unidecode(x).lower()).astype(str)
     df[['codigo_provincia', 'provincia']] = df['provincia'].str.extract(r'(\d+) (.+)')
 
-    df = Funciones.standard(df)
+    df = Funciones.standard_comunidades_provincias(df)
 
     df[['anio', 'trimestre']] = df['periodo'].str.extract(r'(\d{4})T(\d)')
     df = df.drop('periodo', axis=1)

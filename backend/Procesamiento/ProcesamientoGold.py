@@ -4,6 +4,7 @@ import pandas as pd
 from unidecode import unidecode
 import json
 import unicodedata
+import Funciones
 
 def procces_gold_poblacion_activa_ocupada():
     df_activa = pd.read_excel('results/SILVER/poblacion_activa_2002_2023.xlsx')
@@ -57,21 +58,11 @@ def create_gold():
 
     df_merged_2.sort_values(by=['anio', 'comunidad_autonoma'], inplace=True)
     
-    create_excel(df_merged_2, 'results/GOLD/', 'gold.xlsx')
+    Funciones.create_excel(df_merged_2, 'results/GOLD/', 'gold.xlsx')
 
 def create_gold_poblacion_activa_ocupada():
     df = procces_gold_poblacion_activa_ocupada()
-    create_excel(df, 'results/GOLD/', 'poblacion_activa_ocupada.xlsx')
-
-def create_excel(df, output_folder, file_name):
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    path = output_folder + file_name
-    df.to_excel(path, index=False)
+    Funciones.create_excel(df, 'results/GOLD/', 'poblacion_activa_ocupada.xlsx')
 
 if __name__ == '__main__':
-
     create_gold()
-    """ df = procces_gold_poblacion_activa_ocupada()
-    print(df) """
