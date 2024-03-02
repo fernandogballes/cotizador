@@ -15,12 +15,7 @@ def poblacion_activa_ocupada_process(df):
     df['provincia'] = df['provincia'].apply(lambda x: unidecode(x).lower()).astype(str)
     df[['codigo_provincia', 'provincia']] = df['provincia'].str.extract(r'(\d+) (.+)')
 
-    with open('backend/diccionario_comunidades_provincias.json', 'r') as file: comunidades_dict = json.load(file)
-    with open('backend/diccionario_estandar_comunidades.json', 'r') as file: provincias_mapping = json.load(file)
-    comunidades_mapping = lambda x: next((v for k, v in comunidades_dict.items() if k in x.lower()), x) # Definir una función lambda para buscar el mapeo basado en el contenido
-
-    df['provincia'] = df['provincia'].infer_objects(copy=False).replace(provincias_mapping)
-    df['comunidad_autonoma'] = df['provincia'].map(comunidades_mapping)
+    df = Funciones.standard(df)
 
     df[['anio', 'trimestre']] = df['periodo'].str.extract(r'(\d{4})T(\d)')
     df = df.drop('periodo', axis=1)
@@ -75,19 +70,5 @@ def create_poblacion_ocupada_activa_2002_2023():
     create_poblacion_activa_2002_2023()
     create_poblacion_ocupada_2002_2023()
 
-# por grupos de edad pero por ccaa no por provincias
-def poblacion_ocupada_process_3977(folder_path):
-    df = pd.read_csv(folder_path, sep=';', encoding='latin1')
-
-    df = poblacion_activa_ocupada_process(df)
-
-    edad_mapping = {'Total': '1','De 16 a 19 años': '2', 'De 20 a 24 años': '3', 'De 25 a 54 años': '4', '55 y más años': '5'}
-    df['edad'] = df['edad'].astype(str).replace(edad_mapping).astype(int)
-
-    df = df.reindex(columns=['anio', 'trimestre', 'codigo_provincia', 'provincia', 'comunidad_autonoma', 'edad', 'total'])
-    
-    print(df)
-
 if __name__ == '__main__':
     create_poblacion_ocupada_activa_2002_2023()
-    
