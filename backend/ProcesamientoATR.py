@@ -114,49 +114,7 @@ def atr_process_all_2003_2013(folders_path):
 
     return result_df
 
-def atr_process_all_2003_2013_2(folders_path): 
-    result_df = pd.DataFrame()
-    folders = [name for name in os.listdir(folders_path) if os.path.isdir(os.path.join(folders_path, name))]
-    for folder in folders:
-        path = folders_path + folder
-        excel_files = [file for file in os.listdir(path) if file.endswith('.xls') or file.endswith('.xlsx')]
-
-        for file in excel_files:
-            file_path = os.path.join(path, file)    
-            df = atr_multi_sheets_files_2003_2013_2(file_path, folder)
-            result_df = pd.concat([result_df, df])
-
-    return result_df
-
 def atr_multi_sheets_files_2003_2013(file, anio):
-    xls = pd.ExcelFile(file)
-    sheet_names = xls.sheet_names
-    df_all = pd.read_excel(file, sheet_name=sheet_names)
-   
-    process_df = pd.DataFrame()
-
-    for sheet_name, df in df_all.items():
-
-        localidad = unidecode(df.iloc[1,0]).lower()
-        localidad, comunidad_autonoma = Funciones.standarized_comunidades_provincias(localidad)
-
-        if anio < '2009': df_filtered = atr_process_2003_2008(df)
-        else: df_filtered = atr_process_2009_2013(df)
-
-        df_filtered['provincia'] = localidad
-
-        process_df = pd.concat([process_df, df_filtered])
-
-    process_df['comunidad_autonoma'] = comunidad_autonoma
-    process_df['anio'] = int(anio)
-    
-    cols_to_replace = ['total_jornada', 'leves_jornada', 'graves_jornada', 'mortales_jornada', 'total_itinere', 'leves_itinere', 'graves_itinere', 'mortales_itinere']
-    process_df = process_df.infer_objects(copy=True).replace([' -', '-'], '0')
-    process_df[cols_to_replace] = process_df[cols_to_replace].astype(int) 
-
-    return process_df
-
-def atr_multi_sheets_files_2003_2013_2(file, anio):
     xls = pd.ExcelFile(file)
     sheet_names = xls.sheet_names
     df_all = pd.read_excel(file, sheet_name=sheet_names)
@@ -205,7 +163,6 @@ def atr_process_2009_2013(df):
     #df_filtered['seccion'] = df_filtered['seccion'].str.strip()
     df_filtered['seccion'] = df_filtered['seccion'].str.strip().apply(lambda x: unidecode(x).lower())
     
-    
     return df_filtered
 
 def create_atr_2001_2022():
@@ -218,9 +175,12 @@ def create_atr_2001_2022():
     Funciones.create_excel(atr_2001_2022, 'results/SILVER/', 'ATR_2001_2022.xlsx')
 
 if __name__ == '__main__':
+    create_atr_2001_2022()
+    """ df_1 = pd.read_excel('results/SILVER/ATR_2001_2022.xlsx')
+    print('atr 1: ', df_1[(df_1['provincia']=='ceuta') & (df_1['anio']==2003)])
+    df_2 = pd.read_excel('results/SILVER/ATR_2001_2022_1.xlsx')
+    print('\n\natr 2: ', df_2[(df_2['provincia']=='ceuta') & (df_2['anio']==2003)])
 
-    df_1 = atr_process_all_2003_2013('datos/accidentes laborales/2003-2013/')
-    df_2 = atr_process_all_2003_2013_2('datos/accidentes laborales/2003-2013/')
     merged_df = df_1.merge(df_2, how='outer', indicator=True)
 
     # Filtrar las filas que tienen diferencias
@@ -229,9 +189,7 @@ if __name__ == '__main__':
     # Mostrar las diferencias
     print("Diferencias entre los DataFrames:")
     print(diferencias)
-    print(df_1.equals(df_2))
-
-    #create_atr_2001_2022()
+    print(df_1.equals(df_2)) """
 
 
 
