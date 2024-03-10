@@ -1,45 +1,21 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-from pandas.plotting import scatter_matrix
-from scipy.stats import pearsonr, randint as sp_randint
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, mean_absolute_error, precision_score
-# Imports Decision Tree
-from sklearn import tree
-from sklearn.tree import DecisionTreeClassifier, plot_tree, export_text
-from sklearn.model_selection import KFold
-#Imports naive bayes
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-#Imports K-MEANS
 from sklearn import metrics
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 from tensorflow import keras
 from keras import layers
-from keras.models import Sequential
-from keras.layers import Dense
-
-
 
 def create_danger_index():
     df = pd.read_excel('results/GOLD/gold.xlsx')
 
-    df = df[['anio', 'provincia', 'comunidad_autonoma', 'total_accidentes_jornada', 'total_victimas_trafico', 'porcentaje_poblacion_ocupada', 'total_accidentes_itinere']]
+    df = df[['anio', 'provincia', 'comunidad_autonoma', 'total_accidentes_jornada', 'total_victimas_trafico', 'porcentaje_poblacion_ocupada_construccion', 'total_accidentes_itinere']]
 
-    df['danger_num'] = (df['total_accidentes_jornada']*0.5 + df['total_victimas_trafico'] * df['porcentaje_poblacion_ocupada'] * 0.15 + df['total_accidentes_itinere'] * 0.35)/3
+    df['danger_num'] = (df['total_accidentes_jornada']*0.5 + df['total_victimas_trafico'] * df['porcentaje_poblacion_ocupada_construccion'] * 0.15 + df['total_accidentes_itinere'] * 0.35)/3
 
     #list_ccmm = ['asturias', 'cantabria', 'navarra', 'la rioja', 'pais vasco', 'murcia', 'baleares', 'canarias', 'ceuta', 'melilla']
     list_ccmm = ['andalucia', 'aragon' 'castilla la mancha', 'castilla y leon', 'cataluna', 'comunidad valenciana', 'extremadura', 'galicia', 'madrid']
@@ -100,10 +76,8 @@ def kmeans(df):
     kmeans = KMeans(n_clusters=3, random_state=50)
     df['cluster'] = kmeans.fit_predict(X_scaled)
 
-    # Muestra el DataFrame con la columna de clusters
     print(df)
 
-    # Puedes visualizar los resultados si lo deseas
     plt.scatter(df['anio'], df['danger_index'], c=df['cluster'], cmap='viridis')
     plt.xlabel('Año')
     plt.ylabel('Danger Index')
@@ -112,7 +86,6 @@ def kmeans(df):
 
 def elbow_method(df_codec):
     X_scaled = encoder_scaler(df_codec)
-    # Realiza el método del codo para determinar el número óptimo de clusters
     inertia = []
     for i in range(1, 11):
         kmeans = KMeans(n_clusters=i, random_state=42)
@@ -139,7 +112,6 @@ def dbscan(df):
             clusters = dbscan.fit_predict(X_scaled)
             inertia = pairwise_distances(X_scaled, metric='euclidean', squared=True).min(axis=1).sum()
 
-            # Almacenar los resultados en un array
             results.append({'eps': eps, 'min_samples': min_samples, 'inertia': inertia})
 
     eps_values = [res['eps'] for res in results]
@@ -170,7 +142,6 @@ def neuronal_network(df):
 
     model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
 
-    # Entrenar el modelo
     model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), verbose = 0) # verbose=0
 
     predictions = model.predict(X_test)
@@ -185,6 +156,6 @@ def neuronal_network(df):
 
     return 1
 
-
 if __name__ == '__main__':
     neuronal_network(create_danger_index())
+    print()

@@ -16,4 +16,7 @@ def standard_comunidades_provincias(df):
     df['provincia'] = df['provincia'].infer_objects(copy=False).replace(estandar_dict)
     df['comunidad_autonoma'] = df['provincia'].infer_objects(copy=False).replace(comunidades_dict)
 
+    provincias = comunidades_dict.keys()
+    df = df[df['provincia'].isin(provincias)]
+
     return df

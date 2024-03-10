@@ -11,7 +11,7 @@ def procces_gold_poblacion_activa_ocupada():
     df_ocupada = pd.read_excel('results/SILVER/poblacion_ocupada_2002_2023.xlsx')
 
     df_activa = df_activa.rename(columns={'total': 'total_poblacion_activa'})
-    df_ocupada = df_ocupada.rename(columns={'total': 'total_poblacion_ocupada'})
+    df_ocupada = df_ocupada.rename(columns={'total': 'total_poblacion_ocupada_construccion'})
 
     df_ocupada['edad'] = 1
     
@@ -19,23 +19,22 @@ def procces_gold_poblacion_activa_ocupada():
     merged_df = merged_df.drop('edad', axis = 1)
     merged_df = merged_df[merged_df['anio'] <= 2022]
 
-    df_mean = merged_df.groupby(['anio', 'provincia', 'comunidad_autonoma']).agg({'total_poblacion_activa': 'mean', 'total_poblacion_ocupada': 'mean'}).reset_index()
+    df_mean = merged_df.groupby(['anio', 'provincia', 'comunidad_autonoma']).agg({'total_poblacion_activa': 'mean', 'total_poblacion_ocupada_construccion': 'mean'}).reset_index()
 
-    df_comunidades = df_mean.groupby(['comunidad_autonoma', 'anio']).agg({'total_poblacion_activa': 'sum', 'total_poblacion_ocupada': 'sum'}).reset_index()
+    df_comunidades = df_mean.groupby(['comunidad_autonoma', 'anio']).agg({'total_poblacion_activa': 'sum', 'total_poblacion_ocupada_construccion': 'sum'}).reset_index()
     df_comunidades['provincia'] = df_comunidades['comunidad_autonoma']
 
     df_result = pd.concat([df_mean, df_comunidades])
     df_result = df_result.drop_duplicates()
 
-    df_result['porcentaje_poblacion_ocupada'] = df_result['total_poblacion_ocupada']/df_result['total_poblacion_activa']
+    df_result['porcentaje_poblacion_ocupada_construccion'] = df_result['total_poblacion_ocupada_construccion']/df_result['total_poblacion_activa']
 
     return df_result
 
 def process_gold_atr():
     df = pd.read_excel('results/SILVER/ATR_2001_2022.xlsx')
     df = df[(df['seccion']=='construccion') & (df['anio']>2001)]
-    df = df[['total_jornada', 'total_itinere', 'comunidad_autonoma', 'provincia', 'anio']]
-    df = df.rename(columns={'total_jornada': 'total_accidentes_jornada', 'total_itinere': 'total_accidentes_itinere'})
+    df = df.rename(columns={'total_jornada': 'total_accidentes_jornada', 'total_itinere': 'total_accidentes_itinere', 'leves_jornada': 'leves_accidentes_jornada', 'graves_jornada': 'graves_accidentes_jornada', 'mortales_jornada': 'mortales_accidentes_jornada', 'leves_itinere': 'leves_accidentes_itinere', 'graves_itinere': 'graves_accidentes_itinere', 'mortales_itinere': 'mortales_accidentes_itinere'})
 
     return df
 
@@ -47,6 +46,7 @@ def process_gold_accidentes_trafico():
     df = df.rename(columns={'numero': 'total_victimas_trafico'})
 
     return df
+    
     
 def create_gold():
     df_poblacion_activa_ocupada = procces_gold_poblacion_activa_ocupada()

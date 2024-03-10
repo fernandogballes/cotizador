@@ -51,6 +51,8 @@ def atr_process_unit_2014_2022(excel_path):
 
     process_df = Funciones.standard_comunidades_provincias(process_df)
 
+    process_df = process_df[process_df['provincia'] != process_df['comunidad_autonoma']]
+
     return process_df
 
 def atr_process_all_2001_2002(folder_path):
