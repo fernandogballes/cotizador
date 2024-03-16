@@ -13,27 +13,26 @@ def procces_gold_poblacion_activa_ocupada():
     df_activa = df_activa.rename(columns={'total': 'total_poblacion_activa'})
     df_ocupada = df_ocupada.rename(columns={'total': 'total_poblacion_ocupada_construccion'})
 
+    # Creamos una columna edad con valor a 1 ya que en la pobacion activa este grupo representa el total, con el cual queremos comparar
     df_ocupada['edad'] = 1
+    df_activa = df_activa[df_activa['edad']==1]
     
     merged_df = df_activa.merge(df_ocupada, on=['comunidad_autonoma', 'anio', 'trimestre', 'codigo_provincia', 'edad', 'provincia'])
     merged_df = merged_df.drop('edad', axis = 1)
     merged_df = merged_df[merged_df['anio'] <= 2022]
 
+    # Creacion de medias anuales y que los datos vienen en trimestres
     df_mean = merged_df.groupby(['anio', 'provincia', 'comunidad_autonoma']).agg({'total_poblacion_activa': 'mean', 'total_poblacion_ocupada_construccion': 'mean'}).reset_index()
-
-    df_comunidades = df_mean.groupby(['comunidad_autonoma', 'anio']).agg({'total_poblacion_activa': 'sum', 'total_poblacion_ocupada_construccion': 'sum'}).reset_index()
-    df_comunidades['provincia'] = df_comunidades['comunidad_autonoma']
-
-    df_result = pd.concat([df_mean, df_comunidades])
+    
+    df_result = df_mean
     df_result = df_result.drop_duplicates()
-
     df_result['porcentaje_poblacion_ocupada_construccion'] = df_result['total_poblacion_ocupada_construccion']/df_result['total_poblacion_activa']
 
     return df_result
 
 def process_gold_atr():
     df = pd.read_excel('results/SILVER/ATR_2001_2022.xlsx')
-    df = df[(df['seccion']=='construccion') & (df['anio']>2001)]
+    df = df[(df['seccion']=='construccion') & (df['anio']>2002)]
     df = df.rename(columns={'total_jornada': 'total_accidentes_jornada', 'total_itinere': 'total_accidentes_itinere', 'leves_jornada': 'leves_accidentes_jornada', 'graves_jornada': 'graves_accidentes_jornada', 'mortales_jornada': 'mortales_accidentes_jornada', 'leves_itinere': 'leves_accidentes_itinere', 'graves_itinere': 'graves_accidentes_itinere', 'mortales_itinere': 'mortales_accidentes_itinere'})
 
     return df
@@ -57,6 +56,8 @@ def create_gold():
     df_merged_2 = df_merged_1.merge(df_accidentes_trafico, on=['anio', 'provincia', 'comunidad_autonoma'])
 
     df_merged_2.sort_values(by=['anio', 'comunidad_autonoma'], inplace=True)
+
+    df_merged_2 =df_merged_2.drop(columns='seccion')
     
     Funciones.create_excel(df_merged_2, 'results/GOLD/', 'gold.xlsx')
 

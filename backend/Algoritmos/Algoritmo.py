@@ -9,50 +9,69 @@ from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 from tensorflow import keras
 from keras import layers
+import numpy as np
+import seaborn as sns
+from sklearn.decomposition import PCA
 
 def create_danger_index():
     df = pd.read_excel('results/GOLD/gold.xlsx')
 
-    df = df[['anio', 'provincia', 'comunidad_autonoma', 'total_accidentes_jornada', 'total_victimas_trafico', 'porcentaje_poblacion_ocupada_construccion', 'total_accidentes_itinere']]
-
     df['danger_num'] = (df['total_accidentes_jornada']*0.5 + df['total_victimas_trafico'] * df['porcentaje_poblacion_ocupada_construccion'] * 0.15 + df['total_accidentes_itinere'] * 0.35)/3
 
-    #list_ccmm = ['asturias', 'cantabria', 'navarra', 'la rioja', 'pais vasco', 'murcia', 'baleares', 'canarias', 'ceuta', 'melilla']
-    list_ccmm = ['andalucia', 'aragon' 'castilla la mancha', 'castilla y leon', 'cataluna', 'comunidad valenciana', 'extremadura', 'galicia', 'madrid']
+    df_normalized_list = [(valor - min(df['danger_num'])) / (max(df['danger_num']) - min(df['danger_num'])) for valor in df['danger_num']]
+    df['danger_index'] = df_normalized_list
 
-    df_1 = df[df['comunidad_autonoma']!=df['provincia']]
-    df_2 = df[~df['comunidad_autonoma'].isin(list_ccmm)].copy()
+    return df
 
-    df_prov_uniccmm = pd.concat([df_1, df_2])
-    df_comunidades_grandes = df[df['comunidad_autonoma'].isin(list_ccmm)].copy()
+def create_ratios(df):
+    df['ratio_leves_totales_jornada'] = np.divide(df['leves_accidentes_jornada'], df['total_accidentes_jornada'], out=np.zeros_like(df['total_accidentes_jornada']), where=df['total_accidentes_jornada'] != 0) 
+    df['ratio_graves_totales_jornada'] = np.divide(df['graves_accidentes_jornada'], df['total_accidentes_jornada'], out=np.zeros_like(df['total_accidentes_jornada']), where=df['total_accidentes_jornada'] != 0)
+    df['ratio_mortales_totales_jornada'] = np.divide(df['mortales_accidentes_jornada'], df['total_accidentes_jornada'], out=np.zeros_like(df['total_accidentes_jornada']), where=df['total_accidentes_jornada'] != 0)
 
-    comunidades_danger_num = df_comunidades_grandes['danger_num']
-    provincias_danger_num = df_prov_uniccmm['danger_num']
+    df['ratio_leves_totales_itinere'] = np.divide(df['leves_accidentes_itinere'], df['total_accidentes_itinere'], out=np.zeros_like(df['total_accidentes_itinere']), where=df['total_accidentes_itinere'] != 0)
+    df['ratio_graves_totales_itinere'] = np.divide(df['graves_accidentes_itinere'], df['total_accidentes_itinere'], out=np.zeros_like(df['total_accidentes_itinere']), where=df['total_accidentes_itinere'] != 0)
+    df['ratio_mortales_totales_itinere'] = np.divide(df['mortales_accidentes_itinere'], df['total_accidentes_itinere'], out=np.zeros_like(df['total_accidentes_itinere']), where=df['total_accidentes_itinere'] != 0)
 
-    comunidades_min_value = min(comunidades_danger_num)
-    comunidades_range_value = max(comunidades_danger_num) - comunidades_min_value
+    df['ratio_accidentes_itinere_accidentes_trafico'] = np.divide(df['total_accidentes_itinere'], df['total_victimas_trafico'], out=np.zeros_like(df['total_victimas_trafico']), where=df['total_victimas_trafico'] != 0)
 
-    provincias_min_value = min(provincias_danger_num)
-    provincias_range_value = max(provincias_danger_num) - provincias_min_value
+    df['ratio_accidentes_jornada_ocupados'] = np.divide(df['total_accidentes_jornada'], df['total_poblacion_ocupada_construccion'], out=np.zeros_like(df['total_poblacion_ocupada_construccion']), where=df['total_poblacion_ocupada_construccion'] != 0)
+    df['ratio_accidentes_itinere_ocupados'] = np.divide(df['total_accidentes_itinere'], df['total_poblacion_ocupada_construccion'], out=np.zeros_like(df['total_poblacion_ocupada_construccion']), where=df['total_poblacion_ocupada_construccion'] != 0)
+
+    return df
+
+
+def create_df_of_ratios(df):
+    cols = df.columns
+    selected_columns = ['anio', 'provincia', 'comunidad_autonoma']
+    ratio_columns = list(filter(lambda x: 'ratio' in x, cols))
+
+    selected_columns = selected_columns + ratio_columns
+
+    df_filtered = df[selected_columns]
+
+    return df_filtered
+
+def normalize_ratios(df):
+    cols = df.columns
+    ratio_columns = list(filter(lambda x: 'ratio' in x, cols))
+
+    df[ratio_columns] = (df[ratio_columns] - df[ratio_columns].min()) / (df[ratio_columns].max() - df[ratio_columns].min())
+
+    return df
+
+def create_score(df):
+    ratio_columns = df.filter(like='ratio')
+
+    df['score'] = ratio_columns.mean(axis=1, skipna=True)
+
+    df.sort_values(by=['anio', 'score'], inplace=True)
     
-    comunidades_normalized_list = [(valor - comunidades_min_value) / comunidades_range_value for valor in comunidades_danger_num]
-    provincias_normalized_list = [(valor - provincias_min_value) / provincias_range_value for valor in provincias_danger_num]
+    return df
 
-    df_comunidades_grandes['danger_index'] = comunidades_normalized_list
-    df_prov_uniccmm['danger_index'] = provincias_normalized_list
+def create_rank(df):
+    df['rank'] = df.groupby('anio')['score'].rank(ascending=False)
+    return df
 
-    result_df = pd.concat([df_comunidades_grandes, df_prov_uniccmm])
-    result_df = result_df.drop('danger_num', axis=1)
-    
-    result_df.sort_values(by=['anio', 'comunidad_autonoma'], inplace=True)
-
-    """ print(result_df.head(20))
-    print(result_df[(result_df['comunidad_autonoma'].isin(list_ccmm) & (result_df['comunidad_autonoma']==result_df['provincia']) & (result_df['anio']==2012))])
-    print('\n\n\n', result_df[(result_df['danger_index']==max(result_df['danger_index']))]) """
-
-    result_df = result_df[['anio', 'provincia', 'comunidad_autonoma', 'danger_index']].copy()
-
-    return result_df
 
 def encoder_scaler(df):
     df_codec = df.copy()
@@ -156,6 +175,73 @@ def neuronal_network(df):
 
     return 1
 
+def heat_map(df):
+    label_encoder = LabelEncoder()
+
+    # Codificar las columnas de string
+    df['comunidad_autonoma_encoded'] = label_encoder.fit_transform(df['comunidad_autonoma'])
+    df['provincia_encoded'] = label_encoder.fit_transform(df['provincia'])
+
+    df = df.drop(['comunidad_autonoma', 'provincia'], axis = 1)
+    corr_matrix = df.corr()
+    # Crear el mapa de calor
+    plt.figure(figsize=(8, 8))
+    sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+    plt.title('Mapa de Calor')
+    plt.tight_layout()
+    plt.show()
+
+    # Filtrar correlaciones mayores a 0.6
+    correlations_above_06 = corr_matrix[abs(corr_matrix) > 0.5].stack().dropna()
+    correlations_above_06 = correlations_above_06[correlations_above_06 != 1]  # Eliminar correlaciones con sí mismas
+
+    # Filtrar correlaciones únicas
+    unique_correlations = correlations_above_06.reset_index()
+    unique_correlations = unique_correlations[unique_correlations['level_0'] < unique_correlations['level_1']]
+
+    # Guardar las correlaciones únicas en un archivo de texto
+    unique_correlations.to_csv('correlaciones_superiores_06.txt', header=None, sep=' ', index=False)
+
+    # Imprimir mensaje de confirmación
+    print("Correlaciones superiores a 0.6 y únicas guardadas en 'correlaciones_superiores_06.txt'.")
+
+
+def elbow_pca(df):
+    label_encoder = LabelEncoder()
+    # Codificar las columnas de string
+    df['comunidad_autonoma_encoded'] = label_encoder.fit_transform(df['comunidad_autonoma'])
+    df['provincia_encoded'] = label_encoder.fit_transform(df['provincia'])
+    df = df.drop(['comunidad_autonoma', 'provincia'], axis = 1)
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(df)
+
+    pca = PCA()
+    pca.fit(scaled_data)
+
+    # Obtener la varianza explicada acumulativa
+    explained_variance_ratio = np.cumsum(pca.explained_variance_ratio_)
+
+    # Graficar la varianza explicada acumulativa
+    plt.plot(range(1, len(explained_variance_ratio) + 1), explained_variance_ratio, marker='o')
+    plt.xlabel('Número de Componentes')
+    plt.ylabel('Varianza Explicada Acumulativa')
+    plt.title('Método del Codo para determinar el número de componentes en PCA')
+    plt.grid(True)
+    plt.show()
+
+
 if __name__ == '__main__':
-    neuronal_network(create_danger_index())
-    print()
+    df = pd.read_excel('results/GOLD/gold.xlsx')
+    #df = create_danger_index()
+    elbow_pca(df)
+    #heat_map(df)
+    df = create_ratios(df)
+    df = create_df_of_ratios(df)
+    heat_map(df)
+    df = normalize_ratios(df)
+    #heat_map(df)
+
+    # SCORE Y RANGO
+    df = create_score(df)
+    df2 = create_rank(df)
+    

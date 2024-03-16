@@ -29,6 +29,7 @@ def accidentes_trafico_procces(folder_path):
 
     df_total.sort_values(by=['comunidad_autonoma', 'anio'], inplace=True)
     df_total = Funciones.standard_comunidades_provincias(df_total)
+
     df_total = df_total.drop_duplicates()
     df_total ['numero'] = df_total['numero'].astype(float)/1000
 

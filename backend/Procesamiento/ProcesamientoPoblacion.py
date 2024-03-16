@@ -11,8 +11,6 @@ def poblacion_activa_ocupada_process(df):
     df.columns = [unicodedata.normalize('NFKD', col).encode('ASCII', 'ignore').decode('utf-8').lower() for col in df.columns]
     df.rename(columns={'provincias': 'provincia'}, inplace=True)
 
-    print(df.columns)
-
     df = df.dropna(subset=['provincia']).copy()
     df['provincia'] = df['provincia'].apply(lambda x: unidecode(x).lower()).astype(str)
     df[['codigo_provincia', 'provincia']] = df['provincia'].str.extract(r'(\d+) (.+)')

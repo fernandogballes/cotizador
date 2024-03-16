@@ -51,8 +51,6 @@ def atr_process_unit_2014_2022(excel_path):
 
     process_df = Funciones.standard_comunidades_provincias(process_df)
 
-    process_df = process_df[process_df['provincia'] != process_df['comunidad_autonoma']]
-
     return process_df
 
 def atr_process_all_2001_2002(folder_path):
@@ -169,6 +167,7 @@ def atr_process_2009_2013(df):
 
 def create_atr_2001_2022():
     atr_2001_2002 = atr_process_all_2001_2002('datos/accidentes laborales/2001-2002/')
+    print(atr_2001_2002['provincia'])
     atr_2003_2013 = atr_process_all_2003_2013('datos/accidentes laborales/2003-2013/')
     atr_2014_2022 = atr_process_all_2014_2022('datos/accidentes laborales/2014-2022/')
     
