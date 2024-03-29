@@ -16,6 +16,7 @@ import os
 import math
 from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
 
+# BORRAR
 def create_danger_index():
     df = pd.read_excel('results/GOLD/gold.xlsx')
 
@@ -73,6 +74,7 @@ def create_score(df):
 def create_rank(df):
     df['rank'] = df.groupby('anio')['score'].rank(ascending=False)
     return df
+# FIN BORRAR
 
 def encoder_scaler(df):
     df_codec = df.copy()
@@ -136,6 +138,7 @@ def elbow_method(df_codec):
     plt.title('Método del Codo')
     plt.show()
 
+# BORRAR
 def dbscan(df):
     #X_scaled = encoder_scaler(df)
     scaler = StandardScaler()
@@ -265,6 +268,7 @@ def desnormalization(df, data, pred):
     result_df = data.join(desnormalized_pred)
     
     return result_df
+# FIN BORRAR
 
 def heat_map(df):
     label_encoder = LabelEncoder()
@@ -299,6 +303,7 @@ def heat_map(df):
 
     # Imprimir mensaje de confirmación """
 
+# BORRAR
 def elbow_pca(df):
     label_encoder = LabelEncoder()
     # Codificar las columnas de string
@@ -338,6 +343,7 @@ def apply_pca(df):
     pca_df = pd.DataFrame(data=pca_result, columns=['PC1', 'PC2', 'PC3'])
 
     return pca_df
+# FIN BORRAR
 
 def mean_cluster_provincia(df):
     # Agrupar por provincia y calcular la media del cluster
@@ -351,6 +357,35 @@ def mean_cluster_provincia(df):
 
     return df_media_clusters
 
+def accidentes_100000(df):
+    df['accidentes_10000'] = (df['total_accidentes_jornada']/df['total_poblacion_activa']*100000) + (df['total_accidentes_itinere']/df['total_poblacion_activa']*100000) + (df['total_victimas_trafico']/df['total_poblacion_activa']*100000)
+    df_media_ratio = df.groupby('provincia')['accidentes_10000'].mean().reset_index()
+
+    df_media_ratio = df_media_ratio.sort_values(by='accidentes_10000')
+    cuartiles = df_media_ratio['accidentes_10000'].quantile([0.4, 0.8])
+    df_media_ratio['cuartil'] = pd.cut(df_media_ratio['accidentes_10000'], bins=[-float('inf'), cuartiles.iloc[0], cuartiles.iloc[1], float('inf')], labels=['1', '2', '3'])
+
+    return df_media_ratio
+
+def ratios_100000(df):
+    df['accidentes_jornada_100000'] = df['total_accidentes_jornada']/df['total_poblacion_activa']*100000
+    df['accidentes_itinere_100000'] = df['total_accidentes_itinere']/df['total_poblacion_activa']*100000
+    df['accidentes_trafico_100000'] = df['total_victimas_trafico']/df['total_poblacion_activa']*100000
+
+    df_media_ratios = df.groupby('provincia').agg({'accidentes_jornada_100000': 'mean', 'accidentes_itinere_100000': 'mean', 'accidentes_trafico_100000': 'mean'}).reset_index()
+
+    label_encoder = LabelEncoder()
+    df_media_ratios['provincia'] = label_encoder.fit_transform(df_media_ratios['provincia'])
+    X = df_media_ratios.drop(columns=['provincia'])
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    kmeans = KMeans(n_clusters=2, random_state=50)
+    clusters = kmeans.fit_predict(X_scaled)
+    df_media_ratios['cluster'] = clusters
+    df_media_ratios['provincia'] = label_encoder.inverse_transform(df_media_ratios['provincia'])
+
+    return df_media_ratios
+
 def create_excel(df, output_folder, file_name):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -361,10 +396,18 @@ def create_excel(df, output_folder, file_name):
 if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
 
-    clustering = kmeans(df)
+    # DASHBOARD 2
+    result_df = ratios_100000(df)
+    create_excel(result_df, 'results/GOLD/', 'provincias_clustering_v2.xlsx')
+
+    # DASHBOARD 1
+    """ clustering = kmeans(df)
     clustering = mean_cluster_provincia(clustering)
-    print(clustering)
-    create_excel(clustering, 'results/GOLD/', 'provincias_clustering.xlsx')
+    df_ratio = accidentes_100000(df)
+
+    df_merged = pd.merge(clustering, df_ratio, on='provincia', how='left')
+
+    create_excel(df_merged, 'results/GOLD/', 'provincias_clustering.xlsx') """
 
 
     # CORRELACION DE VARIABLES ORGINALES
