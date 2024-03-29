@@ -12,6 +12,9 @@ from keras import layers
 import numpy as np
 import seaborn as sns
 from sklearn.decomposition import PCA
+import os
+import math
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
 
 def create_danger_index():
     df = pd.read_excel('results/GOLD/gold.xlsx')
@@ -89,9 +92,9 @@ def encoder_scaler(df):
     return X_scaled
 
 def kmeans(df):
-    #X_scaled = encoder_scaler(df)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(df)
+    X_scaled = encoder_scaler(df)
+    """ scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df) """
 
     # Aplicar K-means
     kmeans = KMeans(n_clusters=3, random_state=50)
@@ -100,28 +103,21 @@ def kmeans(df):
     # Añadir los clusters al DataFrame
     df['cluster'] = clusters
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    """ # Seleccionar dos características para graficar
+    feature1 = df.columns[0]  # Selecciona la primera característica
+    feature2 = df.columns[1]  # Selecciona la segunda característica
 
-    # Scatter plot en tres dimensiones
-    ax.scatter(X_scaled[:, 0], X_scaled[:, 1], X_scaled[:, 2], c=clusters, cmap='viridis')
-
-    # Etiquetas de los ejes
-    ax.set_xlabel('PC1')
-    ax.set_ylabel('PC2')
-    ax.set_zlabel('PC3')
-
-    # Título del gráfico
-    plt.title('Clustering en 3D con K-means')
-
-    # Mostrar el gráfico
-    plt.show()
-
-    """ plt.scatter(df['PC1'], df['PC2'], c=clusters, cmap='viridis')
-    plt.xlabel('PC1')
-    plt.ylabel('PC2')
-    plt.title('K-means Clustering')
+    # Graficar los clusters
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df[feature1], df[feature2], c=clusters, cmap='viridis', alpha=0.5)
+    plt.xlabel(feature1)
+    plt.ylabel(feature2)
+    plt.title('Clusters obtenidos mediante K-means')
+    plt.colorbar(label='Cluster')
+    plt.grid(True)
     plt.show() """
+
+    return df
 
 def elbow_method(df_codec):
     #X_scaled = encoder_scaler(df_codec)
@@ -141,7 +137,9 @@ def elbow_method(df_codec):
     plt.show()
 
 def dbscan(df):
-    X_scaled = encoder_scaler(df)
+    #X_scaled = encoder_scaler(df)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df)
     eps_values = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     min_samples_values = [5, 10, 50]
 
@@ -214,10 +212,10 @@ def neuronal_network_3(df):
     X_train, X_test, y1_train, y1_test, y2_train, y2_test, y3_train, y3_test = train_test_split(X_scaled, y1, y2, y3, test_size=0.3, random_state=42)
 
     model = keras.Sequential([
-      layers.Dense(16, activation='relu'),
-      layers.Dense(16, activation='relu'),
-      layers.Dense(16, activation='relu'),
-      layers.Dense(3) 
+      layers.Dense(8, activation='relu'),
+      layers.Dense(8, activation='relu'),
+      layers.Dense(8, activation='relu'),
+      layers.Dense(3, activation='sigmoid') 
       ])
 
     model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
@@ -341,43 +339,77 @@ def apply_pca(df):
 
     return pca_df
 
+def mean_cluster_provincia(df):
+    # Agrupar por provincia y calcular la media del cluster
+    df_media_clusters = df.groupby('provincia')['cluster'].mean().reset_index()
+
+    df_media_clusters['cluster'] = round(df_media_clusters['cluster'])
+    # df_media_clusters['cluster'] = np.ceil(df_media_clusters['cluster'])
+    # df_media_clusters['cluster'] = df_media_clusters['cluster'].apply(lambda x: Decimal(x).quantize(0, ROUND_HALF_UP))
+    # df_media_clusters['cluster'] = df_media_clusters['cluster'].apply(lambda x: Decimal(x).quantize(0, ROUND_HALF_DOWN))
+    # df_cluster_comun = df.groupby('provincia')['cluster'].agg(lambda x: x.value_counts().index[0]).reset_index()
+
+    return df_media_clusters
+
+def create_excel(df, output_folder, file_name):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    path = output_folder + file_name
+    df.to_excel(path, index=False)
 
 if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
-    #df = create_danger_index()
-    df = df[['anio', 'provincia', 'comunidad_autonoma', 'total_accidentes_jornada', 'total_accidentes_itinere', 'total_victimas_trafico']]
+
+    clustering = kmeans(df)
+    clustering = mean_cluster_provincia(clustering)
+    print(clustering)
+    create_excel(clustering, 'results/GOLD/', 'provincias_clustering.xlsx')
+
+
+    # CORRELACION DE VARIABLES ORGINALES
+    """ heat_map(df)
+
+    # ESTUDIO DEL PCA
+    elbow_pca(df)
+
+    # CLUSTER CON PCA
+    pca = apply_pca(df)
+    kmeans(pca) """
+
+    # DBSCAN CON PCA
+    """ pca = apply_pca(df)
+    dbscan(pca) """
+
+    # DF SIMPLIFICADO EN BASE A LAS CORRELACIONES
+    """ df = df[['anio', 'provincia', 'comunidad_autonoma', 'total_accidentes_jornada', 'total_accidentes_itinere', 'total_victimas_trafico']] """
+
     # ENTRENAR NN
-    #neuronal_network_3(df)
+    """ neuronal_network_3(df) """
 
     # USAR NN
-    anios = ['2019']
+    """ anios = ['2019']
     provincias = ['alicante']
     comunidades_autonomas = ['comunidad valenciana']
     data, pred = predict_NN3(anios, provincias, comunidades_autonomas)
     pred_df = desnormalization(df, data, pred)
     print(pred_df)
 
-    # CLUSTER CON PCA
-    """ pca = apply_pca(df)
-    elbow_method(pca)
-    kmeans(pca)
+    cols = df.columns
+    total_columns = list(filter(lambda x: 'total' in x, cols))
+    df[total_columns] = (df[total_columns] - df[total_columns].min()) / (df[total_columns].max() - df[total_columns].min())
+    print(df[(df['anio']==2019) & (df['provincia']=='alicante') & (df['comunidad_autonoma']=='comunidad valenciana')]) """
 
-    # ESTUDIO DEL PCA
-    elbow_pca(df) """
-
-    # CORRELACION DE VARIABLES ORGINALES
-    """ heat_map(df) """
-
-    """ #CREACION DE RATIOS Y DATAFRAME SOLO RATIOS
-    df = create_ratios(df)
-    df = create_df_of_ratios(df)
+    #CREACION DE RATIOS Y DATAFRAME SOLO RATIOS
+    """ df = create_ratios(df)
+    df = create_df_of_ratios(df) """
 
     # CORRELACION DE RATIOS
-    heat_map(df)
+    """ heat_map(df) """
     # NORMALIZACION DE LOS DATOS Y CORRELACION
-    df = normalize_ratios(df)
-    heat_map(df)
+    """ df = normalize_ratios(df)
+    heat_map(df) """
 
     # SCORE Y RANGO EN BASE A LOS RATIOS
-    df = create_score(df)
+    """ df = create_score(df)
     df2 = create_rank(df) """
