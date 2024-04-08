@@ -15,6 +15,7 @@ from sklearn.decomposition import PCA
 import os
 import math
 from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 def encoder_scaler(df):
     df_codec = df.copy()
@@ -235,6 +236,45 @@ def kmeans_v2(df, num_cluster, name):
 
     return df_copy
 
+def cluster_jerarquico(df):
+    df_copy = df.copy()
+    # Label Encoding para 'provincia' y 'comunidad_autonoma'
+    label_encoder = LabelEncoder()
+    df['provincia_encoded'] = label_encoder.fit_transform(df['provincia'])
+    df['comunidad_autonoma_encoded'] = label_encoder.fit_transform(df['comunidad_autonoma'])
+
+    # Seleccionar columnas numéricas para normalización
+    columns_to_normalize = ['total_poblacion_activa', 'total_poblacion_ocupada_construccion', 
+                            'total_accidentes_jornada', 'leves_accidentes_jornada', 
+                            'graves_accidentes_jornada', 'mortales_accidentes_jornada', 
+                            'total_accidentes_itinere', 'leves_accidentes_itinere', 
+                            'graves_accidentes_itinere', 'mortales_accidentes_itinere', 
+                            'total_victimas_trafico']
+
+    # Normalización de las columnas numéricas
+    scaler = StandardScaler()
+    df[columns_to_normalize] = scaler.fit_transform(df[columns_to_normalize])
+
+    # Eliminar columnas originales
+    df.drop(['provincia', 'comunidad_autonoma'], axis=1, inplace=True)
+
+    # Aplicar clustering jerárquico
+    X = df.values
+    Z = linkage(X, method='ward', metric='euclidean')
+
+    # Obtener etiquetas para el eje x (año y provincia)
+    etiquetas_x = [f"{anio} - {provincia}" for anio, provincia in zip(df_copy['anio'], df_copy['provincia'])]
+
+    # Visualización del dendrograma con etiquetas personalizadas en el eje x
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z, labels=etiquetas_x, orientation='top', leaf_font_size=10)
+    plt.title('Dendrograma de Clustering Jerárquico')
+    plt.xlabel('Elementos')
+    plt.ylabel('Distancia')
+    plt.xticks(rotation=90)  # Rotar etiquetas en el eje x para mejor visualización
+    plt.tight_layout()
+    plt.show()
+
 def multiply_columns(df):
     columnas_numericas = df.select_dtypes(include=['int64', 'float64']).columns
     df[columnas_numericas] *= 1000
@@ -254,9 +294,10 @@ if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
     df = multiply_columns(df)
 
+    cluster_jerarquico(df)
     # TOTAL DF OPTIONS
-    total_df = create_all_df(df)
-    create_excel(total_df, 'results/GOLD/', 'all_df_options.xlsx')
+    """ total_df = create_all_df(df)
+    create_excel(total_df, 'results/GOLD/', 'all_df_options.xlsx') """
 
     # DASHBOARD 3
     """ cluster_100000(df) """

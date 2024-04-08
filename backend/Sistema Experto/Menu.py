@@ -1,6 +1,6 @@
 from Actividades import Actividades
 from Cliente import Cliente
-from Connection import Connection
+from bbdd.Connection import Connection
 import itertools
 import unicodedata
 import sys
