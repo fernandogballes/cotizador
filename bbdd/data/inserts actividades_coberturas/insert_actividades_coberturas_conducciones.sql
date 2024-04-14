@@ -1,6 +1,6 @@
 -- Inserts para actividades_coberturas relacionadas con "RC Conducciones" (ID: 5)
 
-INSERT INTO actividades_coberturas (id_actividad, id_cobertura) VALUES
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES
     (11, 5),  -- jardinería y paisajismo
     (12, 5),  -- andamiaje y grúas
     (14, 5),  -- alquiler de maquinaria de construcción sin personal

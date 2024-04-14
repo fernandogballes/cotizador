@@ -1,5 +1,5 @@
--- Inserts para actividades_coberturas relacionadas con "RC Subsidiaria" (ID: 9)
-INSERT INTO actividades_coberturas (id_actividad, id_cobertura) VALUES
+-- Inserts para actividad_cobertura relacionadas con "RC Subsidiaria" (ID: 9)
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES
     (37, 9),   -- subcontratación
     (4, 9),    -- construcción de viviendas
     (16, 9),   -- alquiler de maquinaria de construcción con personal

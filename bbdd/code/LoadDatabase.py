@@ -2,11 +2,11 @@ from Connection import Connection
 import os
 
 def load_database():
-    print("Create tables:\n")
+    print("Create tables:")
     create_tables()
-    print("\nCreate catalogos:\n")
+    print("\nCreate catalogos:")
     insert_catalogos_data()
-    print("\nCreate relations:\n")
+    print("\nCreate relations:")
     insert_relations_tables_data()
 
 
@@ -43,15 +43,11 @@ def execute_sql(folder_path):
                     sql_queries = sql_file.read()
 
                 # Ejecutar las consultas SQL
-                if sql_queries:
-                    success = connect.execute_common_query(sql_queries)
-                    if success:
-                        print("Consultas SQL ejecutadas correctamente.")
-                    else:
-                        print("Ocurrió un error al ejecutar las consultas SQL.")
+                connect.execute_common_query(sql_queries)
 
     except Exception as e:
         print(f"Error al ejecutar scripts SQL: {e}")
 
 if __name__ == '__main__':
     load_database()
+    #print(Connection().execute_select_query("SELECT * FROM catalogo_coberturas;"))

@@ -16,6 +16,11 @@ import os
 import math
 from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
 from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.metrics import silhouette_samples, silhouette_score
+from scipy.cluster.hierarchy import linkage, fcluster
+from mlxtend.frequent_patterns import apriori, association_rules
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import KBinsDiscretizer
 
 def encoder_scaler(df):
     df_codec = df.copy()
@@ -244,12 +249,14 @@ def cluster_jerarquico(df):
     df['comunidad_autonoma_encoded'] = label_encoder.fit_transform(df['comunidad_autonoma'])
 
     # Seleccionar columnas numéricas para normalización
-    columns_to_normalize = ['total_poblacion_activa', 'total_poblacion_ocupada_construccion', 
+    columns_to_normalize = ['anio', 'total_poblacion_activa', 'total_poblacion_ocupada_construccion', 
                             'total_accidentes_jornada', 'leves_accidentes_jornada', 
                             'graves_accidentes_jornada', 'mortales_accidentes_jornada', 
                             'total_accidentes_itinere', 'leves_accidentes_itinere', 
                             'graves_accidentes_itinere', 'mortales_accidentes_itinere', 
                             'total_victimas_trafico']
+
+    #columns_to_normalize = ['anio', 'provincia', 'comunidad_autonoma','accidentes_jornada_100000', 'accidentes_itinere_100000', 'accidentes_trafico_100000']
 
     # Normalización de las columnas numéricas
     scaler = StandardScaler()
@@ -262,9 +269,14 @@ def cluster_jerarquico(df):
     X = df.values
     Z = linkage(X, method='ward', metric='euclidean')
 
+    return Z, X
+
+def dendograma(df):
+    df_copy = df.copy()
+    Z, X = cluster_jerarquico(df)
+      
     # Obtener etiquetas para el eje x (año y provincia)
     etiquetas_x = [f"{anio} - {provincia}" for anio, provincia in zip(df_copy['anio'], df_copy['provincia'])]
-
     # Visualización del dendrograma con etiquetas personalizadas en el eje x
     plt.figure(figsize=(12, 8))
     dendrogram(Z, labels=etiquetas_x, orientation='top', leaf_font_size=10)
@@ -274,6 +286,100 @@ def cluster_jerarquico(df):
     plt.xticks(rotation=90)  # Rotar etiquetas en el eje x para mejor visualización
     plt.tight_layout()
     plt.show()
+
+def shilhoutte(df):
+    df_copy = df.copy()
+    Z, X = cluster_jerarquico(df)
+    # Determinar el número óptimo de clusters utilizando el método de corte de dendrograma
+    t = 4
+    etiquetas_clusters = fcluster(Z, t=t, criterion='maxclust')
+
+    # Calcular coeficientes de silueta
+    coeficientes_silueta = silhouette_samples(X, etiquetas_clusters)
+    coeficiente_silueta_promedio = silhouette_score(X, etiquetas_clusters)
+
+    # Visualizar coeficientes de silueta
+    plt.figure(figsize=(8, 6))
+    plt.hist(coeficientes_silueta, bins=30, alpha=0.75, edgecolor='black')
+    plt.axvline(x=coeficiente_silueta_promedio, color='red', linestyle='--', linewidth=2, label='Silhouette Score Promedio')
+    plt.title('Distribución de Coeficientes de Silueta')
+    plt.xlabel('Coeficiente de Silueta')
+    plt.ylabel('Frecuencia')
+    plt.legend()
+    plt.show()
+
+    print(f"El coeficiente de silueta promedio es: {coeficiente_silueta_promedio:.2f}")
+
+def matriz_distancias(df):
+    df_copy = df.copy()
+    Z, X = cluster_jerarquico(df)
+    # Calcular matriz de distancias
+    distancias = linkage(X, method='ward', metric='euclidean')
+    matriz_distancias = pd.DataFrame(distancias, columns=['cluster_1', 'cluster_2', 'distancia', 'n_elementos'])
+
+    # Visualizar matriz de distancias como heatmap
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(matriz_distancias.pivot(index='cluster_1', columns='cluster_2', values='distancia'), cmap='viridis')
+    plt.title('Heatmap de Matriz de Distancias')
+    plt.xlabel('Cluster 2')
+    plt.ylabel('Cluster 1')
+    plt.show()
+
+def caracteristicas_cluster(df):
+    df_copy = df.copy()
+    Z, X = cluster_jerarquico(df)
+    t = 4  # Número de clusters deseado
+    etiquetas_clusters = fcluster(Z, t=t, criterion='maxclust')
+
+    # Agregar etiquetas de clusters al DataFrame original
+    df['cluster'] = etiquetas_clusters
+
+    # Análisis de características por cluster
+    for cluster_id in df['cluster'].unique():
+        cluster_data = df[df['cluster'] == cluster_id].drop('cluster', axis=1)
+        descripcion_cluster = cluster_data.describe()
+        print(f'\nCluster {cluster_id}:')
+        print(descripcion_cluster)
+
+
+def reglas_asociacion(df):
+    # Copiar el DataFrame original
+    df_processed = df.copy()
+
+    # Seleccionar las características numéricas para normalización y discretización
+    numeric_features = ['total_poblacion_activa', 'total_poblacion_ocupada_construccion',
+                        'total_accidentes_jornada', 'leves_accidentes_jornada',
+                        'graves_accidentes_jornada', 'mortales_accidentes_jornada',
+                        'total_accidentes_itinere', 'leves_accidentes_itinere',
+                        'graves_accidentes_itinere', 'mortales_accidentes_itinere',
+                        'total_victimas_trafico']
+
+    # Normalizar las características numéricas
+    scaler = StandardScaler()
+    df_processed[numeric_features] = scaler.fit_transform(df_processed[numeric_features])
+
+    # Discretizar las características numéricas
+    discretizer = KBinsDiscretizer(n_bins=3, encode='ordinal', strategy='uniform')  # Puedes ajustar los parámetros según sea necesario
+    df_processed[numeric_features] = discretizer.fit_transform(df_processed[numeric_features])
+
+    # Seleccionar características discretizadas y otras columnas relevantes
+    df_items = df_processed[['anio', 'provincia', 'comunidad_autonoma'] + numeric_features]
+
+    # Convertir características numéricas discretizadas en variables categóricas
+    df_items = pd.get_dummies(df_items, columns=numeric_features, prefix=numeric_features)
+
+    # Convertir todas las columnas a tipo booleano
+    df_items = df_items.astype(bool)
+
+    # Aplicar el algoritmo Apriori para encontrar conjuntos frecuentes
+    frequent_itemsets = apriori(df_items, min_support=0.1, use_colnames=True)
+
+    # Generar reglas de asociación a partir de los conjuntos frecuentes
+    rules = association_rules(frequent_itemsets, metric='lift', min_threshold=1.0)
+
+    # Mostrar las reglas de asociación encontradas
+    print("Reglas de Asociación:")
+    rules.to_csv('results/GOLD/rules.csv', index=False)
 
 def multiply_columns(df):
     columnas_numericas = df.select_dtypes(include=['int64', 'float64']).columns
@@ -294,7 +400,19 @@ if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
     df = multiply_columns(df)
 
-    cluster_jerarquico(df)
+    #df = create_ratios_100000(df)
+    # cluster_jerarquico(df)
+
+    # REGLAS DE ASOCIACION
+    """ reglas_asociacion(df.copy()) """
+
+    # CLUSTER JERARQUICO
+    dendograma(df.copy())
+    shilhoutte(df.copy())
+    matriz_distancias(df.copy())
+    caracteristicas_cluster(df.copy())
+
+
     # TOTAL DF OPTIONS
     """ total_df = create_all_df(df)
     create_excel(total_df, 'results/GOLD/', 'all_df_options.xlsx') """
@@ -314,3 +432,5 @@ if __name__ == '__main__':
     df_merged = pd.merge(clustering, df_ratio, on='provincia', how='left')
 
     create_excel(df_merged, 'results/GOLD/', 'provincias_clustering.xlsx') """
+
+   

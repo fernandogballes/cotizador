@@ -1,5 +1,5 @@
--- Inserts para actividades_coberturas relacionadas con "RC Trabajos en Caliente" (ID: 6)
-INSERT INTO actividades_coberturas (id_actividad, id_cobertura) VALUES
+-- Inserts para actividad_cobertura relacionadas con "RC Trabajos en Caliente" (ID: 6)
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES
     (6, 6),   -- soldadura con oxicorte
     (28, 6),  -- oxicorte
     (17, 6),  -- cimentación

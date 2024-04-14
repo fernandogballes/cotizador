@@ -1,5 +1,5 @@
 -- Inserts para actividades_coberturas relacionadas con "RC Daños a las Redes de Comunicaciones Públicas" (ID: 10)
-INSERT INTO actividades_coberturas (id_actividad, id_cobertura) VALUES
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES
     (46, 10),  -- instalaciones de fibra
     (47, 10),  -- instalaciones de adsl
     (48, 10),  -- instalaciones de comunicaciones

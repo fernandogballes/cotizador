@@ -1,5 +1,5 @@
 -- Inserts para actividades_coberturas relacionadas con "RC Contaminación Accidental" (ID: 8)
-INSERT INTO actividades_coberturas (id_actividad, id_cobertura) VALUES
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES
     (36, 8),  -- trabajo con alquitrán modificado asfáltico
     (34, 8),  -- reparación de carreteras
     (27, 8),  -- excavaciones
