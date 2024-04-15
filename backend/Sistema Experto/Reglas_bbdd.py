@@ -43,7 +43,7 @@ def create_oferta_poliza(id_cliente, id_oferta):
     for id_cobertura in ids_coberturas:
         if id_cobertura == 1: id_franquicia, id_sublimite = rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
         if id_cobertura == 2: id_franquicia, id_sublimite = rc_accidentes_de_trabajo(suma_asegurada)
-        if id_cobertura == 3: id_franquicia, id_sublimite = rc_pots_trabajos(suma_asegurada)
+        if id_cobertura == 3: id_franquicia, id_sublimite = rc_pots_trabajos(id_oferta, suma_asegurada)
         if id_cobertura == 4: id_franquicia, id_sublimite = rc_derribos(volumen_facturacion)
         if id_cobertura == 5: id_franquicia, id_sublimite = rc_conducciones(volumen_facturacion)
         if id_cobertura == 6: id_franquicia, id_sublimite = rc_trabajos_en_caliente(volumen_facturacion)
@@ -67,6 +67,7 @@ def rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag):
     
     sublimite = str(suma_asegurada)
 
+    id_cobertura = select_id_cobertura('RC Explotacion')
     id_franquicia = select_id_franquicia(franquicia)
     id_sublimite = select_id_sublimite(sublimite)
 
@@ -83,14 +84,18 @@ def rc_accidentes_de_trabajo(suma_asegurada, agravada_flag):
     if suma_asegurada==1000000 or suma_asegurada==2000000 and agravada_flag=='true': sublimite='600000'
     if suma_asegurada>=3000000 and suma_asegurada<=10000000 and agravada_flag=='true': sublimite='750000'
     
-    id_franquicia = select_id_franquicia(franquicia)
-    id_sublimite = select_id_sublimite(sublimite)
+    id_cobertura = select_id_cobertura('RC Accidentes de trabajo')
+    id_franquicia = select_id_franquicia(id_cobertura, franquicia)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
 
     return id_franquicia, id_sublimite
     
 
-def rc_pots_trabajos(id_cliente):
-    return 1
+def rc_pots_trabajos(id_oferta, suma_asegurada):
+    id_cobertura = select_id_cobertura('RC Post-trabajos')
+    id_franquicia = Connection().execute_select_query(f"SELECT id_franquicia FROM ofertas WHERE id_oferta = {id_oferta}")
+    id_sublimite = select_id_sublimite(id_cobertura, suma_asegurada)
+    return id_franquicia, id_sublimite
 
 def rc_derribos(id_cliente):
     return 1
@@ -113,23 +118,27 @@ def rc_subsidiaria(id_cliente):
 def rc_danos_redes_de_comunicaciones_publicas(id_cliente):
     return 1
 
-def select_id_franquicia(franquicia):
+def select_id_cobertura(nombre_cobertura):
+    cobertura_id_query = f"SELECT id_cobertura
+                            FROM catalogo_coberturas
+                            WHERE nombre_cobertura LIKE {nombre_cobertura}"
+    id_cobertura = Connection().execute_select_query(cobertura_id_query)
+    return id_cobertura
+
+def select_id_franquicia(id_cobertura, franquicia):
     franquicia_explotacion_query = f"SELECT id_franquicia
                                     FROM franquicia_cobertura fc
                                     JOIN catalgo_franquicias cf
                                     ON fc.id_cobertura = cf.id_cobertura
-                                    WHERE franquicia LIKE {franquicia}"
-    
+                                    WHERE franquicia LIKE {franquicia} AND fc.id_cobertura = {id_cobertura}"
     franquicia = Connection().execute_select_query(franquicia_explotacion_query)
-
     return franquicia
 
-def select_id_sublimite(sublimite):
+def select_id_sublimite(id_cobertura, sublimite):
     sublimite_explotacion_query = f"SELECT id_sublimite
                                     FROM sublimite_cobertura sc
                                     JOIN catalogo_sublimites cs
                                     ON sc.id_cobertura = cs.id_cobertura
-                                    WHERE sublimite LIKE {sublimite}"
+                                    WHERE sublimite LIKE {sublimite} AND fc.id_cobertura = {id_cobertura}"
     id_sublimite = Connection().execute_select_query(sublimite_explotacion_query)
-
     return id_sublimite
