@@ -167,12 +167,16 @@ def atr_process_2009_2013(df):
 
 def create_atr_2001_2022():
     atr_2001_2002 = atr_process_all_2001_2002('datos/accidentes laborales/2001-2002/')
+    print(atr_2001_2002['provincia'])
     atr_2003_2013 = atr_process_all_2003_2013('datos/accidentes laborales/2003-2013/')
     atr_2014_2022 = atr_process_all_2014_2022('datos/accidentes laborales/2014-2022/')
     
     atr_2001_2022 = pd.concat([atr_2001_2002,atr_2003_2013,atr_2014_2022])
 
-    Funciones.create_excel(atr_2001_2022, 'results/SILVER/', 'ATR_2001_2022.xlsx')
+    num_columns = ['total_jornada', 'leves_jornada', 'graves_jornada', 'mortales_jornada', 'total_itinere', 'leves_itinere', 'graves_itinere', 'mortales_itinere']
+    atr_2001_2022[num_columns] = atr_2001_2022[num_columns].astype(float)/1000
+
+    Funciones.create_excel(atr_2001_2022, 'results/SILVER/', 'ATR_2001_2022.xlsx') 
 
 if __name__ == '__main__':
     create_atr_2001_2022()
