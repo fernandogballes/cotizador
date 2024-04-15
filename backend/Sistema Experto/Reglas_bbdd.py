@@ -32,7 +32,7 @@ def extract_client_info(id_cliente, id_oferta):
     ids_coberturas, agravada_flag = extract_coberturas(id_cliente)
     volumen_facturacion = Connection().execute_select_query(f"SELECT volumen_facturacion FROM clientes WHERE id_cliente = {id_cliente}")
     suma_asegurada = Connection().execute_select_query(f"SELECT volumen_facturacion FROM ofertas WHERE id_oferta = {id_oferta} AND id_cliente = {id_cliente}")
-    #agravada_flag = Connection().execute_select_query(f"WITH actividad_agravadas AS (SELECT id_actividad, agravada_flag FROM catalogo_actividades WHERE agravada_flag = true) SELECT  ")
+    #agravada_flag = Connection().execute_select_query(f"WITH actividadagravada_flags AS (SELECT id_actividad, agravada_flag FROM catalogo_actividades WHERE agravada_flag = true) SELECT  ")
 
     return ids_coberturas, agravada_flag, volumen_facturacion, suma_asegurada
 
@@ -93,30 +93,99 @@ def rc_accidentes_de_trabajo(suma_asegurada, agravada_flag):
 
 def rc_pots_trabajos(id_oferta, suma_asegurada):
     id_cobertura = select_id_cobertura('RC Post-trabajos')
-    id_franquicia = Connection().execute_select_query(f"SELECT id_franquicia FROM ofertas WHERE id_oferta = {id_oferta}")
+    id_explotacion = select_id_cobertura('RC Explotacion')
+    id_franquicia = Connection().execute_select_query(f"SELECT id_franquicia FROM ofertas WHERE id_oferta = {id_oferta} AND id_cobertura = {id_explotacion}")
     id_sublimite = select_id_sublimite(id_cobertura, suma_asegurada)
     return id_franquicia, id_sublimite
 
-def rc_derribos(id_cliente):
-    return 1
+def rc_derribos(suma_asegurada, volumen_facturacion, agravada_flag):
+    #Calculo de la franquicia de la cobertura
+    if volumen_facturacion<=600000.0: franquicia='1500'
+    if volumen_facturacion>600000 and volumen_facturacion<=4000000.0: franquicia='10% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag=='false': franquicia='20% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag=='true': franquicia='20% minimo 3000 maximo 6000'
+    #calculo del sublimite de la cobertura
+    sublimite = suma_asegurada/2
 
-def rc_conducciones(id_cliente):
-    return 1
+    id_cobertura = select_id_cobertura('RC Derribos')
+    id_franquicia = select_id_franquicia(id_cobertura, franquicia)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
 
-def rc_trabajos_en_caliente(id_cliente):
-    return 1
+    return id_franquicia, id_sublimite
 
-def rc_locativa(id_cliente):
-    return 1
+def rc_conducciones(suma_asegurada, volumen_facturacion, agravada_flag):
+    if volumen_facturacion<=600000.0: franquicia='1500'
+    if volumen_facturacion>600000 and volumen_facturacion<=4000000.0: franquicia='10% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag==0: franquicia='20% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag==1: franquicia='20% minimo 3000 maximo 6000'
+    #calculo del sublimite de la cobertura
+    sublimite = suma_asegurada/2
 
-def rc_contaminacion_accidental(id_cliente):
-    return 1
+    id_cobertura = select_id_cobertura('RC Conducciones')
+    id_franquicia = select_id_franquicia(id_cobertura, franquicia)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
+
+    return id_franquicia, id_sublimite
+
+def rc_trabajos_en_caliente(volumen_facturacion, suma_asegurada, agravada_flag):
+    if volumen_facturacion<=600000.0: franquicia='1500'
+    if volumen_facturacion>600000 and volumen_facturacion<=4000000.0: franquicia='10% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag==0: franquicia='20% minimo 1500 maximo 3000'
+    if volumen_facturacion>4000000 and volumen_facturacion<=15000000.0 and agravada_flag==1: franquicia='20% minimo 3000 maximo 6000'
+    #calculo del sublimite de la cobertura
+    if suma_asegurada==150000 or suma_asegurada==300000: sublimite='90000'
+    if suma_asegurada==600000 or suma_asegurada==1000000: sublimite='150000'
+    if suma_asegurada>=1000000 and suma_asegurada<=6000000: sublimite='300000'
+    if suma_asegurada>=3000000 and suma_asegurada<=6000000 and agravada_flag==0: sublimite='600000'
+    if suma_asegurada==10000000 or suma_asegurada==8000000: sublimite='2000000'
+    if suma_asegurada==2000000 and agravada_flag==1: sublimite='600000'
+    if suma_asegurada>=3000000 and suma_asegurada<=6000000 and agravada_flag==1: sublimite='100000'
+
+    id_cobertura = select_id_cobertura('RC Trabajos en caliente')
+    id_franquicia = select_id_franquicia(id_cobertura, franquicia)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
+    return id_franquicia, id_sublimite
+
+def rc_locativa(id_oferta, suma_asegurada):
+    if suma_asegurada==150000: sublimite='90000'
+    if suma_asegurada==300000: sublimite='150000'
+    if suma_asegurada>=600000 and suma_asegurada<=3000000: sublimite='300000'
+    if suma_asegurada>=400000 and suma_asegurada<=7000000: sublimite='600000'
+    if suma_asegurada==800000 and suma_asegurada==10000000: sublimite='1000000'
+
+    id_cobertura = select_id_cobertura('RC Locativa')
+    id_franquicia = select_franquicia_explotacion(id_oferta)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
+    return id_franquicia, id_sublimite
+
+def rc_contaminacion_accidental(id_oferta, suma_asegurada):
+    if suma_asegurada==150000: sublimite='90000'
+    if suma_asegurada>=300000 and suma_asegurada<=1000000: sublimite='150000'
+    if suma_asegurada==2000000: sublimite='300000'
+    if suma_asegurada==3000000: sublimite='600000'
+    if suma_asegurada>=4000000 and suma_asegurada<=10000000: sublimite='1000000'
+
+    id_cobertura = select_id_cobertura('RC Contaminacion accidental')
+    id_franquicia = select_franquicia_explotacion(id_oferta)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
+    return id_franquicia, id_sublimite
 
 def rc_subsidiaria(id_cliente):
+    franquicia = 'Sin franquicia'
+    sublimite = select_id_sublimite()
+
     return 1
 
 def rc_danos_redes_de_comunicaciones_publicas(id_cliente):
     return 1
+
+def select_franquicia_explotacion(id_oferta):
+    id_explotacion = select_id_cobertura('RC Explotacion')
+    franquicia_query = f"SELECT id_franquicia
+                        FROM ofertas
+                        WHERE id_oferta = {id_oferta} AND id_cobertura = {id_explotacion}"
+    id_franquicia = Connection().execute_select_query(franquicia_query)
+    return id_franquicia
 
 def select_id_cobertura(nombre_cobertura):
     cobertura_id_query = f"SELECT id_cobertura
