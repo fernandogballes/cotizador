@@ -14,4 +14,4 @@ INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (4, 4); -- c
 INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (1, 4); -- revoco de fachadas
 INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (15, 4); -- trabajos en altura
 INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (45, 4); -- obra civil
-INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (51, 4); -- derribos
+INSERT INTO actividad_cobertura (id_actividad, id_cobertura) VALUES (51, 4); -- derribos 
