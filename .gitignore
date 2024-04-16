@@ -9,6 +9,7 @@
 /SuicideRateData
 /UnemploymentData
 tempCodeRunnerFile.py
+/tool_querys
 
 *.csv
 *.xls
