@@ -4,4 +4,4 @@ INSERT INTO sublimite_cobertura (id_sublimite, id_cobertura) VALUES
 	(3,8),
 	(4,8),
 	(6,8),
-	(8,8);
+	(8,8); 

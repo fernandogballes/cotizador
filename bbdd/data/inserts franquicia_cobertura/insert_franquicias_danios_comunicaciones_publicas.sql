@@ -4,3 +4,4 @@ INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura) VALUES
 	(3,10),
 	(4,10),
 	(5,10);
+	

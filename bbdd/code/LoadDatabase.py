@@ -9,7 +9,6 @@ def load_database():
     print("\nCreate relations:")
     insert_relations_tables_data()
 
-
 def create_tables():
     execute_sql("bbdd/data/tables/")
 
