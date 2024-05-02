@@ -7,7 +7,44 @@ from Poliza import Poliza
 from Cliente import Cliente
 import json
 
+def create_suma_asegurada_limite_anualidad_poliza(id_cliente):
+    _, agravada_flag, volumen_facturacion = extract_client_info(id_cliente)
+    if agravada_flag==0:
+        if volumen_facturacion<=150000.0: suma_asegurada=150000.0
+        elif volumen_facturacion>150000.0 and volumen_facturacion<=300000.0: suma_asegurada=300000.0
+        elif volumen_facturacion>300000.0 and volumen_facturacion<=1000000.0: suma_asegurada=600000.0
+        elif volumen_facturacion>1000000.0 and volumen_facturacion<=2000000.0: suma_asegurada=1000000.0
+        elif volumen_facturacion>2000000.0 and volumen_facturacion<=3000000.0: suma_asegurada=2000000.0
+        elif volumen_facturacion>3000000.0 and volumen_facturacion<=4000000.0: suma_asegurada=3000000.0
+        elif volumen_facturacion>4000000.0 and volumen_facturacion<=5000000.0: suma_asegurada=4000000.0
+        elif volumen_facturacion>5000000.0 and volumen_facturacion<=10000000.0: suma_asegurada=6000000.0
+        elif volumen_facturacion>10000000.0 and volumen_facturacion<=15000000.0: suma_asegurada=8000000.0
+    else:
+        if volumen_facturacion<=150000.0: suma_asegurada=300000.0
+        elif volumen_facturacion>150000.0 and volumen_facturacion<=300000.0: suma_asegurada=600000.0
+        elif volumen_facturacion>300000.0 and volumen_facturacion<=1000000.0: suma_asegurada=1000000.0
+        elif volumen_facturacion>1000000.0 and volumen_facturacion<=2000000.0: suma_asegurada=2000000.0
+        elif volumen_facturacion>2000000.0 and volumen_facturacion<=3000000.0:suma_asegurada=3000000.0
+        elif volumen_facturacion>3000000.0 and volumen_facturacion<=4000000.0:suma_asegurada=4000000.0
+        elif volumen_facturacion>4000000.0 and volumen_facturacion<=5000000.0:suma_asegurada=6000000.0
+        elif volumen_facturacion>5000000.0 and volumen_facturacion<=10000000.0:suma_asegurada=8000000.0
+        elif volumen_facturacion>10000000.0 and volumen_facturacion<=15000000.0:suma_asegurada=10000000.0
+
+    limite_anualidad = suma_asegurada*2
+
+    return suma_asegurada, limite_anualidad
+
+def create_oferta_poliza(id_cliente):
+    suma_asegurada, limite_anualidad = create_suma_asegurada_limite_anualidad_poliza(id_cliente)
+
 def extract_coberturas(id_cliente):
+    actividades_coberturas_query = f"SELECT DISTINCT id_cobertura
+                                    FROM actividad_cliente a
+                                    JOIN actividad_cobertura b
+                                    ON a.id_actividad = id_actividad
+                                    WHERE a.id_cliente = {id_cliente}"
+    ids_coberturas_2 = Connection().execute_select_query(actividades_coberturas_query)
+
     agravada_flag = 'false'
     ids_actividades = Connection().execute_select_query(f"SELECT id_actividad FROM actividad_cliente WHERE id_cliente = {id_cliente}")
 
@@ -17,7 +54,11 @@ def extract_coberturas(id_cliente):
         #if agravada_flag == 'false': agravada_flag = Connection().execute_select_query(f"SELECT agravada_flag FROM catalogo_actividades WHERE id_actividad = {id_actividad}")
 
     ids_coberturas = list(set(ids_coberturas))
+    agravada_flag = extract_agravada_flag(id_cliente)
 
+    return ids_coberturas, agravada_flag
+
+def extract_agravada_flag(id_cliente):
     agravada_query = f"SELECT 1
                         FROM actividad_cliente ac
                         JOIN catalogo_actividades ca ON ac.id_actividad = ca.id_actividad
@@ -25,32 +66,30 @@ def extract_coberturas(id_cliente):
                         LIMIT 1"
     
     agravada_flag = bool(Connection().execute_select_query(agravada_query))
-
-    return ids_coberturas, agravada_flag
+    return agravada_flag
 
 def extract_client_info(id_cliente, id_oferta):
     ids_coberturas, agravada_flag = extract_coberturas(id_cliente)
     volumen_facturacion = Connection().execute_select_query(f"SELECT volumen_facturacion FROM clientes WHERE id_cliente = {id_cliente}")
-    suma_asegurada = Connection().execute_select_query(f"SELECT volumen_facturacion FROM ofertas WHERE id_oferta = {id_oferta} AND id_cliente = {id_cliente}")
     #agravada_flag = Connection().execute_select_query(f"WITH actividadagravada_flags AS (SELECT id_actividad, agravada_flag FROM catalogo_actividades WHERE agravada_flag = true) SELECT  ")
 
-    return ids_coberturas, agravada_flag, volumen_facturacion, suma_asegurada
+    return ids_coberturas, agravada_flag, volumen_facturacion
 
-
-def create_oferta_poliza(id_cliente, id_oferta):
-    ids_coberturas, agravada_flag, volumen_facturacion, suma_asegurada = extract_client_info(id_cliente, id_oferta)
+def create_coberturas_poliza(id_cliente, id_oferta):
+    ids_coberturas, agravada_flag, volumen_facturacion = extract_client_info(id_cliente, id_oferta)
+    suma_asegurada = Connection().execute_select_query(f"SELECT volumen_facturacion FROM ofertas WHERE id_oferta = {id_oferta} AND id_cliente = {id_cliente}")
 
     for id_cobertura in ids_coberturas:
         if id_cobertura == 1: id_franquicia, id_sublimite = rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
-        if id_cobertura == 2: id_franquicia, id_sublimite = rc_accidentes_de_trabajo(suma_asegurada)
+        if id_cobertura == 2: id_franquicia, id_sublimite = rc_accidentes_de_trabajo(suma_asegurada, agravada_flag)
         if id_cobertura == 3: id_franquicia, id_sublimite = rc_pots_trabajos(id_oferta, suma_asegurada)
-        if id_cobertura == 4: id_franquicia, id_sublimite = rc_derribos(volumen_facturacion)
-        if id_cobertura == 5: id_franquicia, id_sublimite = rc_conducciones(volumen_facturacion)
-        if id_cobertura == 6: id_franquicia, id_sublimite = rc_trabajos_en_caliente(volumen_facturacion)
-        if id_cobertura == 7: id_franquicia, id_sublimite = rc_locativa(suma_asegurada)
-        if id_cobertura == 8: id_franquicia, id_sublimite = rc_contaminacion_accidental(suma_asegurada)
-        if id_cobertura == 9: id_franquicia, id_sublimite = rc_subsidiaria(id_cliente)
-        if id_cobertura == 10: id_franquicia, id_sublimite = rc_danos_redes_de_comunicaciones_publicas(suma_asegurada)
+        if id_cobertura == 4: id_franquicia, id_sublimite = rc_derribos(suma_asegurada, volumen_facturacion, agravada_flag)
+        if id_cobertura == 5: id_franquicia, id_sublimite = rc_conducciones(suma_asegurada, volumen_facturacion, agravada_flag)
+        if id_cobertura == 6: id_franquicia, id_sublimite = rc_trabajos_en_caliente(volumen_facturacion, suma_asegurada, agravada_flag)
+        if id_cobertura == 7: id_franquicia, id_sublimite = rc_locativa(id_oferta, suma_asegurada)
+        if id_cobertura == 8: id_franquicia, id_sublimite = rc_contaminacion_accidental(id_oferta, suma_asegurada)
+        if id_cobertura == 9: id_franquicia, id_sublimite = rc_subsidiaria(id_oferta)
+        if id_cobertura == 10: id_franquicia, id_sublimite = rc_danos_redes_de_comunicaciones_publicas(id_oferta, suma_asegurada)
         else: print("Error: Numero de cobertura inesperado")
 
         insert_cobertura_query = f"INSERT INTO oferta_cobertura (id_oferta, id_cobertura, id_franquicia, id_sublimite) VALUES ({id_oferta}, {id_cobertura}, {id_franquicia}, {id_sublimite})"
@@ -90,7 +129,6 @@ def rc_accidentes_de_trabajo(suma_asegurada, agravada_flag):
 
     return id_franquicia, id_sublimite
     
-
 def rc_pots_trabajos(id_oferta, suma_asegurada):
     id_cobertura = select_id_cobertura('RC Post-trabajos')
     id_explotacion = select_id_cobertura('RC Explotacion')
@@ -170,14 +208,27 @@ def rc_contaminacion_accidental(id_oferta, suma_asegurada):
     id_sublimite = select_id_sublimite(id_cobertura, sublimite)
     return id_franquicia, id_sublimite
 
-def rc_subsidiaria(id_cliente):
+def rc_subsidiaria(id_oferta):
     franquicia = 'Sin franquicia'
-    sublimite = select_id_sublimite()
 
-    return 1
+    id_cobertura = select_id_cobertura('RC Subsidiaria')
+    id_accidentes = select_id_cobertura('RC Accidentes de trabajo')
 
-def rc_danos_redes_de_comunicaciones_publicas(id_cliente):
-    return 1
+    id_sublimite = Connection().execute_select_query(f"SELECT id_sublimite FROM ofertas WHERE id_oferta = {id_oferta} AND id_cobertura = {id_accidentes}")
+    id_franquicia = select_id_franquicia(id_cobertura, franquicia)
+
+    return id_franquicia, id_sublimite
+
+def rc_danos_redes_de_comunicaciones_publicas(id_oferta, suma_asegurada):
+    if suma_asegurada>=150000 and suma_asegurada<=300000: sublimite='90000'
+    if suma_asegurada==600000: sublimite='150000'
+    if suma_asegurada>=1000000 and suma_asegurada<=10000000: sublimite='300000'
+
+    id_cobertura = select_id_cobertura('RC Danos a las redes de comunicaciones publicas')
+    id_fraquicia = select_franquicia_explotacion(id_oferta)
+    id_sublimite = select_id_sublimite(id_cobertura, sublimite)
+
+    return id_fraquicia, id_sublimite
 
 def select_franquicia_explotacion(id_oferta):
     id_explotacion = select_id_cobertura('RC Explotacion')

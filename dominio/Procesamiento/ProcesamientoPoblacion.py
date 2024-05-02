@@ -8,28 +8,33 @@ import Funciones
 
 def poblacion_activa_ocupada_process(df):
 
+    # Estandarizamos los nombres de las columnas
     df.columns = [unicodedata.normalize('NFKD', col).encode('ASCII', 'ignore').decode('utf-8').lower() for col in df.columns]
     df.rename(columns={'provincias': 'provincia'}, inplace=True)
 
-    df = df.dropna(subset=['provincia']).copy()
-    df['provincia'] = df['provincia'].apply(lambda x: unidecode(x).lower()).astype(str)
-    df[['codigo_provincia', 'provincia']] = df['provincia'].str.extract(r'(\d+) (.+)')
+    df = df.dropna(subset=['provincia']).copy() # Eliminamos todas las filas que no tengan valor en la columna porvincia, ya que estas son totales nacionales que no queremos
+    df['provincia'] = df['provincia'].apply(lambda x: unidecode(x).lower()).astype(str) # Eliminamos acentos y caracteres especiales
+    df[['codigo_provincia', 'provincia']] = df['provincia'].str.extract(r'(\d+) (.+)') # Extraemos el codigo de provincia y el nombre de la provincia
 
-    df = Funciones.standard_comunidades_provincias(df)
+    df = Funciones.standard_comunidades_provincias(df) 
 
-    df[['anio', 'trimestre']] = df['periodo'].str.extract(r'(\d{4})T(\d)')
+    df[['anio', 'trimestre']] = df['periodo'].str.extract(r'(\d{4})T(\d)') # Extraemos el año y el trimestre
     df = df.drop('periodo', axis=1)
 
     df[['anio', 'codigo_provincia', 'trimestre']] = df[['anio', 'codigo_provincia', 'trimestre']].astype(int)
 
-    df['total'] = df['total'].infer_objects(copy=False).replace(r'^..$', '0', regex=True)
-    df['total'] = df['total'].infer_objects(copy=False).replace(['\.', '\,'], '', regex=True).astype(float)/10
+    df['total'] = df['total'].infer_objects(copy=False).replace(r'^..$', '0', regex=True) # Cambiamos valores nulos por 0
+    
+    # Modificamos la cadena para que sea compatible con el formato float
+    df['total'] = df['total'].str.replace('.', '')
+    df['total'] = df['total'].str.replace(',', '.')
+    df['total'] = df['total'].astype(float)
     
     return df
 
 def poblacion_activa_process(folder_path):
-    df = pd.read_csv(folder_path, sep=';', encoding='latin1')
-    df = df.drop('Total Nacional', axis=1)
+    df = pd.read_csv(folder_path, sep=';', encoding='utf-8')
+    df = df.drop('Total Nacional', axis=1) # Eliminamos columna de total nacional, siempre es igual, no aporta informacion
     
     df = poblacion_activa_ocupada_process(df)
 
@@ -45,7 +50,7 @@ def poblacion_ocupada_process(folder_path):
     result_df = pd.DataFrame()
     for file in excel_files:
         file_path = os.path.join(folder_path, file)
-        df = pd.read_csv(file_path, sep=';', encoding='latin1')
+        df = pd.read_csv(file_path, sep=';', encoding='utf-8')
 
         df = df[(df['Sector económico']=='Construcción')]
         df = df[df['Provincias'] != 'Total Nacional']

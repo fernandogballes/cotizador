@@ -241,6 +241,37 @@ def kmeans_v2(df, num_cluster, name):
 
     return df_copy
 
+def estadisticas_cluster(df):
+    df_cp = df.copy()
+    cluster = kmeans_v2(df_cp,5,'')
+
+    stats = cluster.groupby(['provincia', 'comunidad_autonoma']).agg({'cluster_': ['mean', 'var', 'std']}).reset_index()
+
+    stats.columns = ['provincia', 'comunidad_autonoma', 'mean_cluster', 'var_cluster', 'std_cluster']
+
+    return stats
+
+def cluster_porcentual(df):
+    df_copy= df.copy()
+
+    df_copy['accidentes_jornada_por_persona'] = df_copy['total_accidentes_jornada']/df_copy['total_poblacion_ocupada_construccion']
+    df_copy['accidentes_itinere_por_persona'] = df_copy['total_accidentes_itinere']/df_copy['total_poblacion_ocupada_construccion']
+    df_copy['accidentes_trafico_por_persona'] = (df_copy['total_victimas_trafico'] * (df_copy['total_poblacion_ocupada_construccion']/df_copy['total_poblacion_activa'])) /df_copy['total_poblacion_ocupada_construccion']
+
+    df_copy = df_copy[['anio', 'provincia', 'comunidad_autonoma', 'accidentes_jornada_por_persona', 'accidentes_itinere_por_persona', 'accidentes_trafico_por_persona']]
+    df_copy = df_copy.sort_values(by=['accidentes_jornada_por_persona', 'accidentes_itinere_por_persona', 'accidentes_trafico_por_persona'], ascending=False)
+
+    #print(df_copy.head(20), '\n\n', df_copy.tail(20))
+
+    df2 = df_copy.copy()
+    df2 = df2.groupby(['provincia', 'comunidad_autonoma']).agg({'accidentes_jornada_por_persona':'mean', 'accidentes_itinere_por_persona':'mean', 'accidentes_trafico_por_persona':'mean'}).reset_index()
+    df2 = df2.sort_values(by=['accidentes_jornada_por_persona', 'accidentes_itinere_por_persona', 'accidentes_trafico_por_persona'], ascending=False)
+
+    #print(df2.head(52))
+
+    return df_copy, df2
+    
+
 def cluster_jerarquico(df):
     df_copy = df.copy()
     # Label Encoding para 'provincia' y 'comunidad_autonoma'
@@ -383,8 +414,9 @@ def reglas_asociacion(df):
 
 def multiply_columns(df):
     columnas_numericas = df.select_dtypes(include=['int64', 'float64']).columns
-    df[columnas_numericas] *= 1000
+    columnas_numericas = columnas_numericas.drop(['anio','porcentaje_poblacion_ocupada_construccion'])
     df = df.drop('porcentaje_poblacion_ocupada_construccion', axis=1)
+    df[columnas_numericas] *= 1000
 
     return df
 
@@ -400,6 +432,24 @@ if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
     df = multiply_columns(df)
 
+    # CLUSTER CON ACCIDENTES POR PERSONA DE COSNTRUCCION
+    """ df_por_persona_no_agrupado, df_por_persona_agrupado = cluster_porcentual(df) """
+
+    """ df_por_persona_no_agrupado = df_por_persona_no_agrupado.sort_values(by=['anio', 'provincia'])
+    df_por_persona_no_agrupado = df_por_persona_no_agrupado[df_por_persona_no_agrupado['anio']>2008]
+    sns.lineplot(x='anio', y='accidentes_jornada_por_persona', hue='provincia', data=df_por_persona_no_agrupado)
+    plt.legend(loc='upper left')
+    plt.show() """
+
+    """ cluster_por_persona_no_agrupado = kmeans_v2(df_por_persona_no_agrupado, 3, 'por_persona_no_agrupado')
+    cluster_por_persona_agrupado = kmeans_v2(df_por_persona_agrupado, 3, 'por_persona_agrupado')
+
+    print(cluster_por_persona_no_agrupado.head(50))
+    print(cluster_por_persona_agrupado.head(52)) """
+
+    """ stats = estadisticas_cluster(df)
+    print(stats) """
+
     #df = create_ratios_100000(df)
     # cluster_jerarquico(df)
 
@@ -407,11 +457,11 @@ if __name__ == '__main__':
     """ reglas_asociacion(df.copy()) """
 
     # CLUSTER JERARQUICO
-    dendograma(df.copy())
+    """ dendograma(df.copy())
     shilhoutte(df.copy())
     matriz_distancias(df.copy())
     caracteristicas_cluster(df.copy())
-
+ """
 
     # TOTAL DF OPTIONS
     """ total_df = create_all_df(df)
