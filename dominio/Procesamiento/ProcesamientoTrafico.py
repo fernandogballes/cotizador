@@ -14,7 +14,10 @@ def accidentes_trafico_procces(folder_path):
 
     columns = ['comunidad_autonoma','provincia','comunidad_subtotal', 'tipo']
     df[columns] = df[columns].apply(lambda x: x.apply(lambda y: unidecode(y).lower()))
-    df[['numero', 'numero_subtotal']] = df[['numero', 'numero_subtotal']].infer_objects(copy=False).replace(['\.', '\,'], '', regex=True).astype(float)
+    #df[['numero', 'numero_subtotal']] = df[['numero', 'numero_subtotal']].infer_objects(copy=False).replace(['\.', '\,'], '', regex=True).astype(float) # REVISAR NUMEROS
+    df['numero'] = df['numero'].str.replace('.', '').astype(float)
+    df['numero_subtotal'] = df['numero_subtotal'].str.replace('.', '').astype(float)
+
     df['anio'] = df['anio'].astype(int)
     df['comunidad_subtotal'] = df['comunidad_subtotal'].str.slice(9)
 

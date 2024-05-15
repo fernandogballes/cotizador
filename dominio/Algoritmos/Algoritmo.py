@@ -239,6 +239,10 @@ def kmeans_v2(df, num_cluster, name):
     col_name = 'cluster_' + name
     df_copy[col_name] = clusters
 
+    print("Etiquetas de los clusters:")
+    for i, centroid in enumerate(kmeans.cluster_centers_):
+        print(f"Cluster {i}: {centroid}")
+
     return df_copy
 
 def estadisticas_cluster(df):
@@ -372,7 +376,6 @@ def caracteristicas_cluster(df):
         print(f'\nCluster {cluster_id}:')
         print(descripcion_cluster)
 
-
 def reglas_asociacion(df):
     # Copiar el DataFrame original
     df_processed = df.copy()
@@ -414,8 +417,9 @@ def reglas_asociacion(df):
 
 def multiply_columns(df):
     columnas_numericas = df.select_dtypes(include=['int64', 'float64']).columns
-    columnas_numericas = columnas_numericas.drop(['anio','porcentaje_poblacion_ocupada_construccion'])
-    df = df.drop('porcentaje_poblacion_ocupada_construccion', axis=1)
+    columnas_numericas = columnas_numericas.drop(['anio'])
+    # columnas_numericas = columnas_numericas.drop(['anio','porcentaje_poblacion_ocupada_construccion'])
+    # df = df.drop('porcentaje_poblacion_ocupada_construccion', axis=1)
     df[columnas_numericas] *= 1000
 
     return df
@@ -431,9 +435,10 @@ def create_excel(df, output_folder, file_name):
 if __name__ == '__main__':
     df = pd.read_excel('results/GOLD/gold.xlsx')
     df = multiply_columns(df)
+    print(df.head(20))
 
     # CLUSTER CON ACCIDENTES POR PERSONA DE COSNTRUCCION
-    """ df_por_persona_no_agrupado, df_por_persona_agrupado = cluster_porcentual(df) """
+    df_por_persona_no_agrupado, df_por_persona_agrupado = cluster_porcentual(df)
 
     """ df_por_persona_no_agrupado = df_por_persona_no_agrupado.sort_values(by=['anio', 'provincia'])
     df_por_persona_no_agrupado = df_por_persona_no_agrupado[df_por_persona_no_agrupado['anio']>2008]
@@ -441,11 +446,27 @@ if __name__ == '__main__':
     plt.legend(loc='upper left')
     plt.show() """
 
-    """ cluster_por_persona_no_agrupado = kmeans_v2(df_por_persona_no_agrupado, 3, 'por_persona_no_agrupado')
-    cluster_por_persona_agrupado = kmeans_v2(df_por_persona_agrupado, 3, 'por_persona_agrupado')
+    """ cluster_df_original = kmeans_v2(df, 3, 'original')
+    cluster_por_persona_no_agrupado = kmeans_v2(df_por_persona_no_agrupado, 3, 'por_persona_no_agrupado')
+    cluster_por_persona_agrupado = kmeans_v2(df_por_persona_agrupado, 3, 'por_persona_agrupado') """
 
-    print(cluster_por_persona_no_agrupado.head(50))
+    """ print(cluster_por_persona_no_agrupado.head(50))
     print(cluster_por_persona_agrupado.head(52)) """
+
+    """ print('\n\n')
+    conteo_cluster_por_persona_no_agrupado = cluster_por_persona_no_agrupado['cluster_por_persona_no_agrupado'].value_counts()
+    for valor, conteo in conteo_cluster_por_persona_no_agrupado.items():
+        print(f"Número de {valor}: {conteo}")
+
+    print('\n\n')
+    conteo_cluster_por_persona_agrupado = cluster_por_persona_agrupado['cluster_por_persona_agrupado'].value_counts()
+    for valor, conteo in conteo_cluster_por_persona_agrupado.items():
+        print(f"Número de {valor}: {conteo}")
+
+    print('\n\n')
+    conteo_df_original = cluster_df_original['cluster_original'].value_counts()
+    for valor, conteo in conteo_df_original.items():
+        print(f"Número de {valor}: {conteo}") """
 
     """ stats = estadisticas_cluster(df)
     print(stats) """

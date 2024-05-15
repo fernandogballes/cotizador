@@ -64,7 +64,7 @@ def poblacion_ocupada_process(folder_path):
     return result_df
 
 def create_poblacion_activa_2002_2023():
-    df_activa = poblacion_activa_process('datos/poblacion activa y ocupada/poblacion activa/activos_por_grupo_de_edad_y_provincia.csv')
+    df_activa = poblacion_activa_process('datos/poblacion activa y ocupada/poblacion activa/65351.csv')
     Funciones.create_excel(df_activa, 'results/SILVER/', 'poblacion_activa_2002_2023.xlsx')
     
 def create_poblacion_ocupada_2002_2023():

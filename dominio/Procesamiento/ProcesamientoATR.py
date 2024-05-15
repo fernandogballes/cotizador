@@ -109,7 +109,7 @@ def atr_process_all_2003_2013(folders_path):
 
         for file in excel_files:
             file_path = os.path.join(path, file)    
-            df = atr_multi_sheets_files_2003_2013(file_path, folder)
+            df = atr_multi_sheets_files_2003_2013(file_path, folder) # MODIFICAR FORMA DE OBTENER EL AÑO
             result_df = pd.concat([result_df, df])
 
     return result_df
@@ -167,7 +167,6 @@ def atr_process_2009_2013(df):
 
 def create_atr_2001_2022():
     atr_2001_2002 = atr_process_all_2001_2002('datos/accidentes laborales/2001-2002/')
-    print(atr_2001_2002['provincia'])
     atr_2003_2013 = atr_process_all_2003_2013('datos/accidentes laborales/2003-2013/')
     atr_2014_2022 = atr_process_all_2014_2022('datos/accidentes laborales/2014-2022/')
     
