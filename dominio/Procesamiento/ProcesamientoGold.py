@@ -15,7 +15,6 @@ def procces_gold_poblacion_activa_ocupada():
     df_ocupada = df_ocupada.rename(columns={'total': 'total_poblacion_ocupada_construccion'})
 
     # Creamos una columna edad con valor a 1 ya que en la pobacion activa este grupo representa el total, con el cual queremos comparar
-    # df_ocupada['edad'] = 1
     df_activa = df_activa[df_activa['edad']==1]
     df_activa = df_activa.drop('edad', axis = 1)
     

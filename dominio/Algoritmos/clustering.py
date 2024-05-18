@@ -1,3 +1,11 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+import config
+
+
+from dominio.Procesamiento.Funciones import create_excel
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -9,7 +17,6 @@ import seaborn as sns
 from sklearn.metrics import silhouette_score
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import squareform 
-import os
 import joblib
 import json
 
@@ -35,13 +42,13 @@ def prepare_data(data):
 
 def random_forest(data):
     data_preprocessed = prepare_data(data)
-    # Paso 2: Entrenar un Random Forest
+    # Entrenar un Random Forest
     # Generar etiquetas artificiales
     labels = np.random.randint(2, size=len(data))
     rf = RandomForestClassifier(n_estimators=100, random_state=42)
     rf.fit(data_preprocessed, labels)
 
-    # Paso 3: Calcular la matriz de proximidad
+    # Calcular la matriz de proximidad
     leaf_indices = rf.apply(data_preprocessed)
     proximity_matrix = np.zeros((len(data), len(data)))
 
@@ -68,7 +75,7 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
     distance_matrix_squareform = squareform(distance_matrix)
     Z = linkage(distance_matrix_squareform, method='ward')
 
-    max_d_values = np.linspace(0.5, 2.0, 15)  # Ajusta el rango según sea necesario
+    max_d_values = np.linspace(0.5, 2.0, 15)  
     silhouette_scores = []
     data_results = []
 
@@ -101,8 +108,8 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
 
     if new_rand_model == 1:
         if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
-            joblib.dump(rf, './random_forest_model_2.joblib')
-        if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, 'results/', 'cluster_3.xlsx')
+            joblib.dump(rf, config.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
+        if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, config.CLUSTERED_DATA_PATH)
 
     return best_data, cluster_summary
 
@@ -119,8 +126,7 @@ def dendrograma(distance_matrix):
 
 def load_random_model(data):
     data_preprocessed = prepare_data(data)
-    loaded_rf = joblib.load("./random_forest_model.joblib")
-    # Paso 3: Calcular la matriz de proximidad
+    loaded_rf = joblib.load(config.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
     leaf_indices = loaded_rf.apply(data_preprocessed)
     proximity_matrix = np.zeros((len(data), len(data)))
 
@@ -130,10 +136,8 @@ def load_random_model(data):
             proximity_matrix[i, j] = np.sum(leaf_indices[i] == leaf_indices[j])
             proximity_matrix[j, i] = proximity_matrix[i, j]
 
-    # Normalizar la matriz de proximidad
     proximity_matrix /= loaded_rf.n_estimators
 
-    # Convertir la matriz de proximidad en una matriz de distancia
     distance_matrix = 1 - proximity_matrix
 
     return distance_matrix
@@ -185,16 +189,14 @@ def labels_info_cluster(best_data, show_labels=0):
 
     return cluster_summary
 
-def hcluster(distance_matrix, max_d):
+def hcluster(data, distance_matrix, max_d):
     distance_matrix_squareform = squareform(distance_matrix)
     Z = linkage(distance_matrix_squareform, method='ward')
     clusters = fcluster(Z, max_d, criterion='distance')
     data['cluster'] = clusters
-    
     return data
 
 def create_rank_clusters(cluster_summary):
-    # Identificar las columnas categóricas y numéricas
     numeric_cols = ['accidentes_leves_jornada_por_persona', 'accidentes_graves_jornada_por_persona',
                     'accidentes_mortales_jornada_por_persona', 'accidentes_leves_itinere_por_persona',
                     'accidentes_graves_itinere_por_persona', 'accidentes_mortales_itinere_por_persona',
@@ -206,7 +208,6 @@ def create_rank_clusters(cluster_summary):
             ('num', MinMaxScaler(), numeric_cols),
         ])
     
-    # cluster_summary = pd.DataFrame(cluster_summary, columns=numeric_cols, index=cluster_summary.index)
     cluster_summary_scaled = preprocessor.fit_transform(cluster_summary)
     cluster_summary_scaled = pd.DataFrame(cluster_summary_scaled, columns=numeric_cols, index=cluster_summary.index)
 
@@ -218,11 +219,9 @@ def create_rank_clusters(cluster_summary):
     cluster_rank = cluster_summary_sorted[['rank', 'score']]
 
     cluster_rank = cluster_rank.reset_index()
-    # print(cluster_rank)
-
     return cluster_rank
 
-def semaforizacion(cluster_rank):
+def semaforizacion(cluster_rank, show_result=0):
     scaler = MinMaxScaler()
     cluster_rank['score_scaled'] = scaler.fit_transform(cluster_rank[['score']])
 
@@ -232,26 +231,21 @@ def semaforizacion(cluster_rank):
     
     semaforo_dict = cluster_rank.set_index('cluster')['semaforo'].to_dict()
 
+    if show_result == 1: print(cluster_rank)
     return cluster_rank, semaforo_dict
 
-
 def save_results(best_data, semaforo_dict):
-    with open('cluster_data/semaforo_dict.json', 'w') as f:
+    with open(config.SEMAFORO_DICT_PATH, 'w') as f:
         json.dump(semaforo_dict, f)
-    create_excel(best_data, 'cluster_data/','cluster_data.xlsx')
 
-def create_excel(df, output_folder, file_name):
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    create_excel(best_data, config.CLUSTERED_DATA_PATH)
 
-    path = output_folder + file_name
-    df.to_excel(path, index=False)
-
-if __name__ == '__main__':
-    data = pd.read_excel('C:/Users/garci/proyectos/cotizador/results/GOLD/gold2.xlsx')  # Carga tu conjunto de datos
-    
+def run_clustering_model():
+    data = pd.read_excel(config.GOLD_DATA_PATH)
     best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0)
     cluster_rank = create_rank_clusters(cluster_summary)
-    cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank)
-    print(cluster_semaforo)
+    cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank, show_result=1)
     save_results(best_data, semaforo_dict)
+
+if __name__ == '__main__':
+    run_clustering_model()

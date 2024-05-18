@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+import config
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -32,7 +37,7 @@ def prepare_data(data):
     
     return X, y, preprocessor
 
-def predict_random_forest(data):
+def predict_random_forest(work_data):
     X, y, preprocessor = prepare_data(work_data)
 
     # Dividir los datos en conjunto de entrenamiento y prueba
@@ -50,14 +55,14 @@ def predict_random_forest(data):
     print(classification_report(y_test, y_pred))
 
     # Guardar el modelo y el preprocesador para futuras predicciones
-    joblib.dump(rf_classifier, 'random_forest_cluster_predictor.joblib')
-    joblib.dump(preprocessor, 'preprocessor.joblib')
+    joblib.dump(rf_classifier, config.TRAINED_PREDICTION_MODEL_PATH)
+    joblib.dump(preprocessor, config.PREPROCESSOR_PATH)
 
 def test():
     # Nuevos datos para predicción (por ejemplo, datos del año 2025)
-    with open('semaforo_dict.json', 'r') as file: semaforizacion_dict = json.load(file)
-    rf_classifier = joblib.load('random_forest_cluster_predictor.joblib')
-    preprocessor = joblib.load('preprocessor.joblib')
+    with open(config.SEMAFORO_DICT_PATH, 'r') as file: semaforizacion_dict = json.load(file)
+    rf_classifier = joblib.load(config.TRAINED_PREDICTION_MODEL_PATH)
+    preprocessor = joblib.load(config.PREPROCESSOR_PATH)
     new_data = pd.DataFrame({
         'anio': [2025],
         'provincia': ['malaga'],
@@ -77,11 +82,13 @@ def test():
     print(f'El cluster predicho para los nuevos datos es: {predicted_cluster}')
     print(f'El semáforo correspondiente al cluster predicho es: {predicted_semaforo}')
 
+def run_selector(op=0):
+    data = pd.read_excel(config.CLUSTERED_DATA_PATH)  # Carga tu conjunto de datos
+    work_data = data[['anio', 'provincia', 'comunidad_autonoma', 'cluster']]
+    
+    if op == 0: test()
+    elif op == 1: predict_random_forest(work_data)
+
 
 if __name__ == '__main__':
-    data = pd.read_excel('cluster_data/cluster_data.xlsx')  # Carga tu conjunto de datos
-    with open('semaforo_dict.json', 'r') as file: semaforizacion_dict = json.load(file)
-
-    work_data = data[['anio', 'provincia', 'comunidad_autonoma', 'cluster']]
-    #predict_random_forest(work_data)
-    test()
+    run_selector(op=0)

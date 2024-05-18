@@ -1,7 +1,7 @@
 # MODELS PATHS
 TRAINED_DISTANCE_MATRIX_MODEL_PATH = 'dominio/Algoritmos/trained_models/random_forest_distance_matrix.joblib'
 TRAINED_PREDICTION_MODEL_PATH = 'dominio/Algoritmos/trained_models/random_forest_cluster_predictor.joblib'
-CLUSTERED_DATA_PATH = 'cluster_data/cluster_data.xlsx'
+CLUSTERED_DATA_PATH = 'dominio/Algoritmos/cluster_data/cluster_data.xlsx'
 PREPROCESSOR_PATH = 'preprocessor.joblib'
 
 
@@ -28,4 +28,4 @@ GOLD_DATA_PATH = 'results/GOLD/gold2.xlsx'
 # DICTIONARY PATHS
 SEMAFORO_DICT_PATH = 'semaforo_dict.json'
 COMUNIDADES_PROVINCIAS_DICT_PATH = 'dominio/Procesamiento/diccionario_comunidades_provincias.json'
-STANDARD_COMUNIDADES_DICT_PATH = 'dominio\Procesamiento\diccionario_estandar_comunidades.json'
+STANDARD_COMUNIDADES_DICT_PATH = 'dominio/Procesamiento/diccionario_estandar_comunidades.json'

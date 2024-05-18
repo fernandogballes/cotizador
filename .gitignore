@@ -10,6 +10,11 @@
 /UnemploymentData
 tempCodeRunnerFile.py
 /tool_querys
+/cluster_data
+/trained_models
+
+*.joblib
+
 
 *.csv
 *.xls
