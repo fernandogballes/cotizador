@@ -1,4 +1,8 @@
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+import config
+
 import pandas as pd 
 import json
 
@@ -12,8 +16,8 @@ def create_excel(df, full_path):
     df.to_excel(full_path, index=False)
 
 def standard_comunidades_provincias(df):
-    with open('dominio/Procesamiento/diccionario_comunidades_provincias.json', 'r') as file: comunidades_dict = json.load(file)
-    with open('dominio/Procesamiento/diccionario_estandar_comunidades.json', 'r') as file: estandar_dict = json.load(file)
+    with open(config.COMUNIDADES_PROVINCIAS_DICT_PATH, 'r') as file: comunidades_dict = json.load(file)
+    with open(config.STANDARD_COMUNIDADES_DICT_PATH, 'r') as file: estandar_dict = json.load(file)
 
     df['provincia'] = df['provincia'].infer_objects(copy=False).replace(estandar_dict)
     df['comunidad_autonoma'] = df['provincia'].infer_objects(copy=False).replace(comunidades_dict)
