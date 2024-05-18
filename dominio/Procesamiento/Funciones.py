@@ -2,12 +2,14 @@ import os
 import pandas as pd 
 import json
 
-def create_excel(df, output_folder, file_name):
+def create_excel(df, full_path):
+    output_folder = os.path.dirname(full_path)
+    file_name = os.path.basename(full_path)
+
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    path = output_folder + file_name
-    df.to_excel(path, index=False)
+    df.to_excel(full_path, index=False)
 
 def standard_comunidades_provincias(df):
     with open('dominio/Procesamiento/diccionario_comunidades_provincias.json', 'r') as file: comunidades_dict = json.load(file)

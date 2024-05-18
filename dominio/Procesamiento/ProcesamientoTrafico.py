@@ -1,9 +1,10 @@
-import csv
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+import config
+
 import pandas as pd 
 from unidecode import unidecode
-import json
-import unicodedata
 import Funciones
 
 def accidentes_trafico_procces(folder_path):
@@ -39,8 +40,8 @@ def accidentes_trafico_procces(folder_path):
     return df_total
 
 def create_accidentes_trafico():
-    df = accidentes_trafico_procces('datos/accidentes trafico/Accidentes_victimas_Carr__CCAA_provincia (1).csv')
-    Funciones.create_excel(df, 'results/SILVER/', 'accidentes_trafico_2002_2022.xlsx')
+    df = accidentes_trafico_procces(config.RAW_ACCIDENTES_TRAFICO_PATH)
+    Funciones.create_excel(df, config.SILVER_ACCIDENTES_TRAFICO_PATH)
 
 if __name__ == '__main__':
     create_accidentes_trafico()
