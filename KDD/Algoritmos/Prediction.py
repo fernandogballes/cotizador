@@ -3,18 +3,11 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import config
 
-import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import silhouette_score
-from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-from scipy.spatial.distance import squareform 
-import os
 import joblib
 import json
 from sklearn.metrics import classification_report, confusion_matrix
@@ -51,12 +44,15 @@ def predict_random_forest(work_data):
     y_pred = rf_classifier.predict(X_test)
 
     # Evaluar el rendimiento del modelo
+    print('CONFUSION MATRIX')
     print(confusion_matrix(y_test, y_pred))
+    print('\nREPORT')
     print(classification_report(y_test, y_pred))
 
     # Guardar el modelo y el preprocesador para futuras predicciones
-    joblib.dump(rf_classifier, config.TRAINED_PREDICTION_MODEL_PATH)
-    joblib.dump(preprocessor, config.PREPROCESSOR_PATH)
+    if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
+        joblib.dump(rf_classifier, config.TRAINED_PREDICTION_MODEL_PATH)
+        joblib.dump(preprocessor, config.PREPROCESSOR_PATH)
 
 def test():
     # Nuevos datos para predicción (por ejemplo, datos del año 2025)
@@ -79,6 +75,7 @@ def test():
     # Obtener el semáforo correspondiente al cluster predicho
     predicted_semaforo = semaforizacion_dict[str(predicted_cluster)]
 
+    print(new_data)
     print(f'El cluster predicho para los nuevos datos es: {predicted_cluster}')
     print(f'El semáforo correspondiente al cluster predicho es: {predicted_semaforo}')
 

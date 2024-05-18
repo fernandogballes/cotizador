@@ -2,16 +2,13 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import config
-
-
-from dominio.Procesamiento.Funciones import create_excel
+from KDD.Procesamiento.Funciones import create_excel
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, MinMaxScaler
 from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import silhouette_score
@@ -240,9 +237,9 @@ def save_results(best_data, semaforo_dict):
 
     create_excel(best_data, config.CLUSTERED_DATA_PATH)
 
-def run_clustering_model():
+def run_clustering_model(new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0):
     data = pd.read_excel(config.GOLD_DATA_PATH)
-    best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0)
+    best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model, show_dend, show_shil, show_cluster_labels)
     cluster_rank = create_rank_clusters(cluster_summary)
     cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank, show_result=1)
     save_results(best_data, semaforo_dict)
