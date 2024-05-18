@@ -11,6 +11,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import squareform 
 import os
 import joblib
+import json
 
 def prepare_data(data):
     # Identificar las columnas categóricas y numéricas
@@ -101,8 +102,7 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
     if new_rand_model == 1:
         if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
             joblib.dump(rf, './random_forest_model_2.joblib')
-
-    if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, 'results/', 'cluster_3.xlsx')
+        if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, 'results/', 'cluster_3.xlsx')
 
     return best_data, cluster_summary
 
@@ -218,7 +218,7 @@ def create_rank_clusters(cluster_summary):
     cluster_rank = cluster_summary_sorted[['rank', 'score']]
 
     cluster_rank = cluster_rank.reset_index()
-    print(cluster_rank)
+    # print(cluster_rank)
 
     return cluster_rank
 
@@ -229,9 +229,16 @@ def semaforizacion(cluster_rank):
     cluster_rank['semaforo'] = pd.cut(cluster_rank['score_scaled'], 
                                       bins=[-float('inf'), 0.33, 0.66, float('inf')], 
                                       labels=[3, 2, 1])
-    print(cluster_rank)
-    return cluster_rank
+    
+    semaforo_dict = cluster_rank.set_index('cluster')['semaforo'].to_dict()
 
+    return cluster_rank, semaforo_dict
+
+
+def save_results(best_data, semaforo_dict):
+    with open('cluster_data/semaforo_dict.json', 'w') as f:
+        json.dump(semaforo_dict, f)
+    create_excel(best_data, 'cluster_data/','cluster_data.xlsx')
 
 def create_excel(df, output_folder, file_name):
     if not os.path.exists(output_folder):
@@ -243,6 +250,8 @@ def create_excel(df, output_folder, file_name):
 if __name__ == '__main__':
     data = pd.read_excel('C:/Users/garci/proyectos/cotizador/results/GOLD/gold2.xlsx')  # Carga tu conjunto de datos
     
-    _, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0)
+    best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0)
     cluster_rank = create_rank_clusters(cluster_summary)
-    cluster_semaforo = semaforizacion(cluster_rank)
+    cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank)
+    print(cluster_semaforo)
+    save_results(best_data, semaforo_dict)
