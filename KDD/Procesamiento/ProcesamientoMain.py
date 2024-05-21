@@ -3,7 +3,7 @@ import ProcesamientoPoblacion as Poblacion
 import ProcesamientoTrafico as Trafico
 import ProcesamientoGold as Gold
 
-if __name__ == '__main__':
+def execute_data_processing():
     print('Procesando Accidentes de Trabajo...')
     ATR.create_atr_2001_2022()
     print('Procesando datos poblacionales...')
@@ -12,3 +12,6 @@ if __name__ == '__main__':
     Trafico.create_accidentes_trafico()
     print('Creando capa GOLD...')
     Gold.create_gold()
+
+if __name__ == '__main__':
+    execute_data_processing()

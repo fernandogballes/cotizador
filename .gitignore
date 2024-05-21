@@ -4,10 +4,10 @@
 /ocupacion
 /accidentes
 /datos
-/resultados_raw
-/SuicideData
-/SuicideRateData
-/UnemploymentData
+/data
+/RAW
+/SILVER
+/GOLD
 tempCodeRunnerFile.py
 /tool_querys
 /cluster_data

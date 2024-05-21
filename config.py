@@ -28,3 +28,8 @@ GOLD_DATA_PATH = 'KDD/data/GOLD/gold.xlsx'
 SEMAFORO_DICT_PATH = 'KDD/Algoritmos/cluster_data/semaforo_dict.json'
 COMUNIDADES_PROVINCIAS_DICT_PATH = 'KDD/Procesamiento/diccionario_comunidades_provincias.json'
 STANDARD_COMUNIDADES_DICT_PATH = 'KDD/Procesamiento/diccionario_estandar_comunidades.json'
+
+# BBDD PATHS
+DDBB_PATH = 'Sistema/bbdd/data/'
+DDBB_CONFIG_PATH = 'Sistema/bbdd/config/ddbb_config.txt'
+DDBB_TRIGGER_PATH = 'Sistema/bbdd/tool_querys/trigger.sql'

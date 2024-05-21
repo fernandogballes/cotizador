@@ -1,19 +1,40 @@
 from Connection import Connection
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+import config
 
 def load_database():
+    delete_bbdd()
     print("Create tables:")
     create_tables()
     print("\nCreate catalogos:")
+    create_triggers()
     insert_catalogos_data()
     print("\nCreate relations:")
     insert_relations_tables_data()
 
+def create_triggers():
+    trigger_path = config.DDBB_TRIGGER_PATH
+    connect = Connection()
+    with open(trigger_path, 'r') as sql_file:
+        sql_queries = sql_file.read()
+        connect.execute_common_query(sql_queries)
+
+def delete_bbdd():
+    delete_path = "Sistema/bbdd/tool_querys/delete_drop.sql"
+    connect = Connection()
+    with open(delete_path, 'r') as sql_file:
+        sql_queries = sql_file.read()
+        connect.execute_common_query(sql_queries)
+
+
 def create_tables():
-    execute_sql("bbdd/data/tables/")
+    tables_path = config.DDBB_PATH + "tables/"
+    execute_sql(tables_path)
 
 def insert_catalogos_data():
-    folder_path = "bbdd/data/"
+    folder_path = config.DDBB_PATH
     for root, dirs, files in os.walk(folder_path):
         for dir_name in dirs:
             if 'catalogo' in dir_name.lower(): 
@@ -21,7 +42,7 @@ def insert_catalogos_data():
                 execute_sql(catalog_folder_path)    
 
 def insert_relations_tables_data():
-    folder_path = "bbdd/data/"
+    folder_path = config.DDBB_PATH
     for root, dirs, files in os.walk(folder_path):
         for dir_name in dirs:
             if 'catalogo' not in dir_name.lower() and 'tables' not in dir_name.lower():  
