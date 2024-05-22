@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import config
+import paths
 
 import pandas as pd 
 from unidecode import unidecode
@@ -40,8 +40,8 @@ def accidentes_trafico_procces(folder_path):
     return df_total
 
 def create_accidentes_trafico():
-    df = accidentes_trafico_procces(config.RAW_ACCIDENTES_TRAFICO_PATH)
-    Funciones.create_excel(df, config.SILVER_ACCIDENTES_TRAFICO_PATH)
+    df = accidentes_trafico_procces(paths.RAW_ACCIDENTES_TRAFICO_PATH)
+    Funciones.create_excel(df, paths.SILVER_ACCIDENTES_TRAFICO_PATH)
 
 if __name__ == '__main__':
     create_accidentes_trafico()

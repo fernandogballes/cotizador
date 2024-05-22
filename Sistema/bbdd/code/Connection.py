@@ -2,7 +2,7 @@ import psycopg2
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
-import config
+import paths
 
 def ddbb_connection_decorator(func):
     def wrapper(*args, **kwargs):
@@ -32,7 +32,7 @@ class Connection:
 
     def __init__(self):
         self.cnx = None
-        self.config = self.read_ddbb_config(config.DDBB_CONFIG_PATH)
+        self.config = self.read_ddbb_config(paths.DDBB_CONFIG_PATH)
 
     def connect(self):
         if not self.cnx or self.cnx.closed:

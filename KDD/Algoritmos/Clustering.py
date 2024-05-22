@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import config
+import paths
 from KDD.Procesamiento.Funciones import create_excel
 
 import numpy as np
@@ -105,8 +105,8 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
 
     if new_rand_model == 1:
         if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
-            joblib.dump(rf, config.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
-        if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, config.CLUSTERED_DATA_PATH)
+            joblib.dump(rf, paths.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
+        if input('0. No guardar resultado\n1. Guardar resultado\nSeleccione: ') == '1': create_excel(best_data, paths.CLUSTERED_DATA_PATH)
 
     return best_data, cluster_summary
 
@@ -123,7 +123,7 @@ def dendrograma(distance_matrix):
 
 def load_random_model(data):
     data_preprocessed = prepare_data(data)
-    loaded_rf = joblib.load(config.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
+    loaded_rf = joblib.load(paths.TRAINED_DISTANCE_MATRIX_MODEL_PATH)
     leaf_indices = loaded_rf.apply(data_preprocessed)
     proximity_matrix = np.zeros((len(data), len(data)))
 
@@ -232,13 +232,13 @@ def semaforizacion(cluster_rank, show_result=0):
     return cluster_rank, semaforo_dict
 
 def save_results(best_data, semaforo_dict):
-    with open(config.SEMAFORO_DICT_PATH, 'w') as f:
+    with open(paths.SEMAFORO_DICT_PATH, 'w') as f:
         json.dump(semaforo_dict, f)
 
-    create_excel(best_data, config.CLUSTERED_DATA_PATH)
+    create_excel(best_data, paths.CLUSTERED_DATA_PATH)
 
 def run_clustering_model(new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0):
-    data = pd.read_excel(config.GOLD_DATA_PATH)
+    data = pd.read_excel(paths.GOLD_DATA_PATH)
     best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model, show_dend, show_shil, show_cluster_labels)
     cluster_rank = create_rank_clusters(cluster_summary)
     cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank, show_result=1)

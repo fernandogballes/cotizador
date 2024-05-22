@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import config
+import paths
 
 import pandas as pd 
 from unidecode import unidecode
@@ -66,12 +66,12 @@ def poblacion_ocupada_process(folder_path):
     return result_df
 
 def create_poblacion_activa_2002_2023():
-    df_activa = poblacion_activa_process(config.RAW_POBLACION_ACTIVA_PATH)
-    Funciones.create_excel(df_activa, config.SILVER_POBLACION_ACTIVA_PATH)
+    df_activa = poblacion_activa_process(paths.RAW_POBLACION_ACTIVA_PATH)
+    Funciones.create_excel(df_activa, paths.SILVER_POBLACION_ACTIVA_PATH)
     
 def create_poblacion_ocupada_2002_2023():
-    df_ocupada = poblacion_ocupada_process(config.RAW_POBLACION_OCUPADA_PATH)
-    Funciones.create_excel(df_ocupada, config.SILVER_POBLACION_OCUPADA_PATH)
+    df_ocupada = poblacion_ocupada_process(paths.RAW_POBLACION_OCUPADA_PATH)
+    Funciones.create_excel(df_ocupada, paths.SILVER_POBLACION_OCUPADA_PATH)
 
 def create_poblacion_ocupada_activa_2002_2023():
     create_poblacion_activa_2002_2023()

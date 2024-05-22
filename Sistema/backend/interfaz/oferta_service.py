@@ -5,6 +5,10 @@ import datetime
 import json
 import joblib
 import pandas as pd
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+import paths
 
 class OfertaManager:
     @staticmethod
@@ -40,6 +44,7 @@ class OfertaManager:
     def create_oferta(cliente, provincia):
         suma_asegurada, limite_anualidad = OfertaManager.create_suma_asegurada_limite_anualidad(cliente)
         semaforo = OfertaManager.predict_semaforo(provincia)
+        print('vuelta semaforo')
         
         oferta = Oferta.objects.create(
             id_cliente=cliente,
@@ -58,7 +63,7 @@ class OfertaManager:
     @staticmethod
     def predict_semaforo(provincia):
         anio  = datetime.date.today().strftime("%Y")
-        with open('test_interfaz/diccionario_comunidades_provincias.json', 'r') as file:
+        with open(paths.COMUNIDADES_PROVINCIAS_DICT_PATH, 'r') as file:
             comunidades_dict = json.load(file)
         
         comunidad_autonoma = comunidades_dict.get(provincia.lower(), "Comunidad no encontrada")
@@ -68,10 +73,10 @@ class OfertaManager:
     
     @staticmethod
     def use_model(anio, provincia, comunidad_autonoma):
-        with open('C:/Users/garci/proyectos/cotizador/KDD/Algoritmos/cluster_data/semaforo_dict.json', 'r') as file:
+        with open(paths.SEMAFORO_DICT_PATH, 'r') as file:
             semaforizacion_dict = json.load(file)
-        rf_classifier = joblib.load('C:/Users/garci/proyectos/cotizador/KDD/Algoritmos/trained_models/random_forest_cluster_predictor.joblib')
-        preprocessor = joblib.load('C:/Users/garci/proyectos/cotizador/KDD/Algoritmos/trained_models/preprocessor.joblib')
+        rf_classifier = joblib.load(paths.TRAINED_PREDICTION_MODEL_PATH)
+        preprocessor = joblib.load(paths.PREPROCESSOR_PATH)
         
         new_data = pd.DataFrame({
             'anio': [anio],
@@ -100,6 +105,7 @@ class OfertaManager:
         
         try:
             for id_cobertura in ids_coberturas:
+                # modificar los condicionales para que no usen ids estaticos si no un select del id buscando el nombre de la cobertura
                 if id_cobertura == 1: id_franquicia, id_sublimite = OfertaManager.rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
                 elif id_cobertura == 2: id_franquicia, id_sublimite = OfertaManager.rc_accidentes_de_trabajo(suma_asegurada, agravada_flag)
                 elif id_cobertura == 3: id_franquicia, id_sublimite = OfertaManager.rc_post_trabajos(oferta.id_oferta, suma_asegurada)

@@ -1,4 +1,7 @@
 from django.db import models
+
+# Create your models here.
+from django.db import models
 from viewflow.fields import CompositeKey
 
 class CatalogoProvincias(models.Model):

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TestInterfazConfig(AppConfig):
+class InterfazConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "test_interfaz"
+    name = "interfaz"

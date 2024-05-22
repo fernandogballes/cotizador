@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import config
+import paths
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -51,14 +51,14 @@ def predict_random_forest(work_data):
 
     # Guardar el modelo y el preprocesador para futuras predicciones
     if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
-        joblib.dump(rf_classifier, config.TRAINED_PREDICTION_MODEL_PATH)
-        joblib.dump(preprocessor, config.PREPROCESSOR_PATH)
+        joblib.dump(rf_classifier, paths.TRAINED_PREDICTION_MODEL_PATH)
+        joblib.dump(preprocessor, paths.PREPROCESSOR_PATH)
 
 def test():
     # Nuevos datos para predicción (por ejemplo, datos del año 2025)
-    with open(config.SEMAFORO_DICT_PATH, 'r') as file: semaforizacion_dict = json.load(file)
-    rf_classifier = joblib.load(config.TRAINED_PREDICTION_MODEL_PATH)
-    preprocessor = joblib.load(config.PREPROCESSOR_PATH)
+    with open(paths.SEMAFORO_DICT_PATH, 'r') as file: semaforizacion_dict = json.load(file)
+    rf_classifier = joblib.load(paths.TRAINED_PREDICTION_MODEL_PATH)
+    preprocessor = joblib.load(paths.PREPROCESSOR_PATH)
     new_data = pd.DataFrame({
         'anio': [2025],
         'provincia': ['malaga'],
@@ -80,7 +80,7 @@ def test():
     print(f'El semáforo correspondiente al cluster predicho es: {predicted_semaforo}')
 
 def run_selector(op=0):
-    data = pd.read_excel(config.CLUSTERED_DATA_PATH)  # Carga tu conjunto de datos
+    data = pd.read_excel(paths.CLUSTERED_DATA_PATH)  # Carga tu conjunto de datos
     work_data = data[['anio', 'provincia', 'comunidad_autonoma', 'cluster']]
     
     if op == 0: test()

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import config
+import paths
 
 import pandas as pd 
 from unidecode import unidecode
@@ -167,16 +167,16 @@ def atr_process_2009_2013(df):
     return df_filtered
 
 def create_atr_2001_2022():
-    atr_2001_2002 = atr_process_all_2001_2002(config.RAW_ATR_2001_2002_PATH)
-    atr_2003_2013 = atr_process_all_2003_2013(config.RAW_ATR_2003_2013_PATH)
-    atr_2014_2022 = atr_process_all_2014_2022(config.RAW_ATR_2014_2022_PATH)
+    atr_2001_2002 = atr_process_all_2001_2002(paths.RAW_ATR_2001_2002_PATH)
+    atr_2003_2013 = atr_process_all_2003_2013(paths.RAW_ATR_2003_2013_PATH)
+    atr_2014_2022 = atr_process_all_2014_2022(paths.RAW_ATR_2014_2022_PATH)
     
     atr_2001_2022 = pd.concat([atr_2001_2002,atr_2003_2013,atr_2014_2022])
 
     num_columns = ['total_jornada', 'leves_jornada', 'graves_jornada', 'mortales_jornada', 'total_itinere', 'leves_itinere', 'graves_itinere', 'mortales_itinere']
     atr_2001_2022[num_columns] = atr_2001_2022[num_columns].astype(float)/1000
 
-    Funciones.create_excel(atr_2001_2022, config.SILVER_ATR_2001_2022_PATH) 
+    Funciones.create_excel(atr_2001_2022, paths.SILVER_ATR_2001_2022_PATH) 
 
 if __name__ == '__main__':
     create_atr_2001_2022()
