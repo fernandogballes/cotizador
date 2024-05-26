@@ -115,37 +115,63 @@ class OfertaManager:
     def create_coberturas_oferta(oferta):
         id_cliente = oferta.id_cliente.id_cliente
         ids_coberturas, agravada_flag = OfertaManager.extract_coberturas(id_cliente)
-        ids_coberturas = sorted(ids_coberturas)
         suma_asegurada = oferta.suma_asegurada
         volumen_facturacion = oferta.id_cliente.volumen_facturacion
         print(f"Creating OfertaCobertura: id_cliente={id_cliente}, id_oferta={oferta.id_oferta}, agravada_flag={agravada_flag}, suma asegurada={suma_asegurada}, volumen facturacion={volumen_facturacion}, ids_coberturas={ids_coberturas}")
         
         try:
-            for id_cobertura in ids_coberturas:
-                # modificar los condicionales para que no usen ids estaticos si no un select del id buscando el nombre de la cobertura
-                if id_cobertura == 1: id_franquicia, id_sublimite = OfertaManager.rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
-                elif id_cobertura == 2: id_franquicia, id_sublimite = OfertaManager.rc_accidentes_de_trabajo(suma_asegurada, agravada_flag)
-                elif id_cobertura == 3: id_franquicia, id_sublimite = OfertaManager.rc_post_trabajos(oferta.id_oferta, suma_asegurada)
-                elif id_cobertura == 4: id_franquicia, id_sublimite = OfertaManager.rc_derribos(suma_asegurada, volumen_facturacion, agravada_flag)
-                elif id_cobertura == 5: id_franquicia, id_sublimite = OfertaManager.rc_conducciones(suma_asegurada, volumen_facturacion, agravada_flag)
-                elif id_cobertura == 6: id_franquicia, id_sublimite = OfertaManager.rc_trabajos_en_caliente(volumen_facturacion, suma_asegurada, agravada_flag)
-                elif id_cobertura == 7: id_franquicia, id_sublimite = OfertaManager.rc_locativa(oferta.id_oferta, suma_asegurada)
-                elif id_cobertura == 8: id_franquicia, id_sublimite = OfertaManager.rc_contaminacion_accidental(oferta.id_oferta, suma_asegurada)
-                elif id_cobertura == 9: id_franquicia, id_sublimite = OfertaManager.rc_subsidiaria(oferta.id_oferta)
-                elif id_cobertura == 10: id_franquicia, id_sublimite = OfertaManager.rc_danos_redes_de_comunicaciones_publicas(oferta.id_oferta, suma_asegurada)
-                else:
-                    raise ValueError(f"Unexpected coverage id: {id_cobertura}")
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Explotacion')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Accidentes de trabajo')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_accidentes_de_trabajo(suma_asegurada, agravada_flag)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Post-trabajos')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_post_trabajos(oferta.id_oferta, suma_asegurada)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Derribos')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_derribos(suma_asegurada, volumen_facturacion, agravada_flag)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Conducciones')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_conducciones(suma_asegurada, volumen_facturacion, agravada_flag)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Trabajos en caliente')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_trabajos_en_caliente(volumen_facturacion, suma_asegurada, agravada_flag)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Locativa')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_locativa(oferta.id_oferta, suma_asegurada)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Contaminacion accidental')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_contaminacion_accidental(oferta.id_oferta, suma_asegurada)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Subsidiaria')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_subsidiaria(oferta.id_oferta)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+            
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Danos a redes de comunicaciones publicas')) in ids_coberturas:
+                id_franquicia, id_sublimite = OfertaManager.rc_danos_redes_de_comunicaciones_publicas(oferta.id_oferta, suma_asegurada)
+                OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
+        
+        except Exception as e:
+            logging.error(f"Error creating coverage for oferta {oferta.id_oferta}: {e}")
 
-                print(f"Creating OfertaCobertura: id_oferta={oferta.id_oferta}, id_cobertura={id_cobertura}, id_franquicia={id_franquicia}, id_sublimite={id_sublimite}")
-
-                OfertaCobertura.objects.create(
+    @staticmethod
+    def create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite):
+        oferta_cobertura = OfertaCobertura.objects.create(
                     id_oferta=oferta,
                     id_cobertura=CatalogoCoberturas.objects.get(id_cobertura=id_cobertura),
                     id_franquicia=CatalogoFranquicias.objects.get(id_franquicia=id_franquicia),
                     id_sublimite=CatalogoSublimites.objects.get(id_sublimite=id_sublimite)
                 )
-        except Exception as e:
-            logging.error(f"Error creating coverage for oferta {oferta.id_oferta}: {e}")
+        return oferta_cobertura
 
     @staticmethod
     def extract_coberturas(id_cliente):

@@ -219,7 +219,6 @@ def menu():
     if op == '1': 
         print(f"Creando el fichero con las actividades y coberturas actuales.")
         create_all_actividad_cobertura()
-        print(f"Archivo guardado en {paths.DDBB_MANTENIMIENTO_ACTIVIDADES_ACTUAL}")
     elif op=='2':
         print(f"Actualizando la base de datos con el fichero actualizado de la ruta {paths.DDBB_MANTENIMIENTO_ACTIVIDADES_UPDATED}") 
         update_database_with_new_data()

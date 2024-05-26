@@ -4,7 +4,10 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 from .oferta_service import OfertaManager
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from rest_framework import generics
+import json
 
 class OfertaListCreateView(generics.ListCreateAPIView):
     queryset = Oferta.objects.all()
@@ -32,6 +35,26 @@ class CatalogoProvinciasDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CatalogoProvincias.objects.all()
     serializer_class = CatalogoProvinciasSerializer
     lookup_field = 'id_provincia'
+
+class ActividadClienteListCreateView(generics.ListCreateAPIView):
+    queryset = ActividadCliente.objects.all()
+    serializer_class = ActividadClienteSerializer
+
+@api_view(['POST'])
+def crear_oferta_completa(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_cliente = data.get('id_cliente')
+        nombre_cliente = data.get('nombre_cliente')
+        volumen_facturacion = data.get('volumen_facturacion')
+        provincia = data.get('provincia')
+        actividades = data.get('actividades')
+
+        try:
+            oferta = OfertaManager.crear_oferta_completa(id_cliente, nombre_cliente, volumen_facturacion, provincia, actividades)
+            return JsonResponse({'message': 'Oferta creada exitosamente', 'oferta_id': oferta.id_oferta})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 def create_oferta(request):
@@ -138,3 +161,14 @@ def provincias_list(request):
         return Response(data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def register_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    if username is None or password is None:
+        return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    user = User.objects.create_user(username=username, password=password)
+    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
