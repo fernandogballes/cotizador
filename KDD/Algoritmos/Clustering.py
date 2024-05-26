@@ -74,7 +74,7 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
 
     max_d_values = np.linspace(0.5, 2.0, 15)  
     silhouette_scores = []
-    data_results = []
+    data_results = []   
 
     for max_d in max_d_values:
         clusters = fcluster(Z, max_d, criterion='distance')
@@ -102,6 +102,7 @@ def hcluster_shilhoutte_analysis(data, new_rand_model=1, show_dend=0, show_shil=
             print(f'Cluster {cluster}: {count}')
 
     cluster_summary = labels_info_cluster(best_data, show_cluster_labels)
+    # create_excel(cluster_summary, 'C:/Users/garci/proyectos/cotizador/KDD/data/SILVER/summary.xlsx')
 
     if new_rand_model == 1:
         if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
@@ -237,11 +238,29 @@ def save_results(best_data, semaforo_dict):
 
     create_excel(best_data, paths.CLUSTERED_DATA_PATH)
 
+def graficar_semaforo(best_data, semaforo_dict):
+        # Visualización de las características categóricas de los clusters
+        categorical_cols = ['provincia', 'comunidad_autonoma']
+
+        best_data['semaforo'] = best_data['cluster'].map(semaforo_dict)
+        colores_semaforo = {2: '#FFAE42', 1: '#FF3633', 3: '#84FF33'}
+        
+        for col in categorical_cols:
+            plt.figure(figsize=(10, 6))
+            sns.countplot(x=col, hue='semaforo', data=best_data, palette=colores_semaforo)
+            plt.title(f'Frecuencia de {col} por Cluster')
+            plt.xlabel(col)
+            plt.ylabel('Frecuencia')
+            plt.xticks(rotation=90)
+            plt.legend(title='Cluster')
+            plt.show()
+
 def run_clustering_model(new_rand_model=0, show_dend=0, show_shil=0, show_cluster_labels=0):
     data = pd.read_excel(paths.GOLD_DATA_PATH)
     best_data, cluster_summary = hcluster_shilhoutte_analysis(data, new_rand_model, show_dend, show_shil, show_cluster_labels)
     cluster_rank = create_rank_clusters(cluster_summary)
     cluster_semaforo, semaforo_dict = semaforizacion(cluster_rank, show_result=1)
+    graficar_semaforo(best_data, semaforo_dict)
     save_results(best_data, semaforo_dict)
 
 if __name__ == '__main__':

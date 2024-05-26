@@ -44,9 +44,11 @@ CREATE TABLE catalogo_sublimites (
 CREATE TABLE actividad_cliente (
     id_cliente varchar(100) NOT NULL,
     id_actividad INT NOT NULL,
-    PRIMARY KEY (id_cliente, id_actividad),
+    id_oferta INT NOT NULL,
+    PRIMARY KEY (id_cliente, id_actividad, id_oferta),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
-    FOREIGN KEY (id_actividad) REFERENCES catalogo_actividades(id_actividad)
+    FOREIGN KEY (id_actividad) REFERENCES catalogo_actividades(id_actividad),
+    FOREIGN KEY (id_oferta) REFERENCES ofertas(id_oferta)
 );
 
 CREATE TABLE actividad_cobertura (

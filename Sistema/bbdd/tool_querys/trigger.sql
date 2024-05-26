@@ -12,7 +12,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to call the function on insert
-CREATE TRIGGER after_insert_actividad_cliente
-AFTER INSERT ON actividad_cliente
+CREATE TRIGGER after_insert_catalogo_actividades
+AFTER INSERT ON catalogo_actividades
 FOR EACH ROW
 EXECUTE FUNCTION insert_mandatory_coverages();

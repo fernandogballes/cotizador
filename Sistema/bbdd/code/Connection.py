@@ -44,14 +44,14 @@ class Connection:
                     port=int(self.config['port']),
                     database=self.config['database']
                 )
-                print("Conexión establecida correctamente")
+                # print("Conexión establecida correctamente")
             except psycopg2.Error as e:
                 print(f"Error al conectar a la base de datos PostgreSQL: {e}")
 
     def close_connect(self):
         if self.cnx and not self.cnx.closed:
             self.cnx.close()
-            print("Conexión cerrada")
+            # print("Conexión cerrada")
 
     @ddbb_connection_decorator
     def execute_select_query(self, consulta):
@@ -73,7 +73,7 @@ class Connection:
             cursor.execute(consulta)
             self.cnx.commit()  # Confirmar los cambios en la base de datos
             cursor.close()
-            print("Consulta ejecutada correctamente")
+            # print("Consulta ejecutada correctamente")
         except psycopg2.Error as e:
             print(f"Error al ejecutar la consulta que no devuelve resultados: {e}")
 

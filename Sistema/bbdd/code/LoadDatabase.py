@@ -3,16 +3,17 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 import paths
+import NewActivities
 
 def load_database():
+    print('Creando base de datos...')
     delete_bbdd()
-    print("Create tables:")
     create_tables()
-    print("\nCreate catalogos:")
-    create_triggers()
+    NewActivities.load_initial_data()
     insert_catalogos_data()
-    print("\nCreate relations:")
-    insert_relations_tables_data()
+    insert_sublimites_franquicias_coberturas()
+    print('Base de datos creada y cargada')
+
 
 def create_triggers():
     trigger_path = paths.DDBB_TRIGGER_PATH
@@ -33,7 +34,7 @@ def create_tables():
     tables_path = paths.DDBB_PATH + "tables/"
     execute_sql(tables_path)
 
-def insert_catalogos_data():
+def insert_catalogos_data():  
     folder_path = paths.DDBB_PATH
     for root, dirs, files in os.walk(folder_path):
         for dir_name in dirs:
@@ -41,13 +42,16 @@ def insert_catalogos_data():
                 catalog_folder_path = os.path.join(root, dir_name)
                 execute_sql(catalog_folder_path)    
 
-def insert_relations_tables_data():
+
+def insert_sublimites_franquicias_coberturas():
     folder_path = paths.DDBB_PATH
-    for root, dirs, files in os.walk(folder_path):
-        for dir_name in dirs:
-            if 'catalogo' not in dir_name.lower() and 'tables' not in dir_name.lower():  
-                catalog_folder_path = os.path.join(root, dir_name)
-                execute_sql(catalog_folder_path) 
+    """ franquicias_path = folder_path + 'insert franquicia_cobertura/inserts franquicia_cobertura.sql'
+    sublimites_path = folder_path + 'insert sublimite_cobertura/inserts sublimite_cobertura.sql' """
+    franquicias_path = folder_path + 'inserts franquicia_cobertura/'
+    sublimites_path = folder_path + 'inserts sublimite_cobertura/'
+
+    execute_sql(franquicias_path)
+    execute_sql(sublimites_path)
 
 def execute_sql(folder_path):
     try:
@@ -70,4 +74,3 @@ def execute_sql(folder_path):
 
 if __name__ == '__main__':
     load_database()
-    #print(Connection().execute_select_query("SELECT * FROM catalogo_coberturas;"))

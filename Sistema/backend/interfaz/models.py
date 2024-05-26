@@ -81,12 +81,13 @@ class CatalogoSublimites(models.Model):
         return self.sublimite
 
 class ActividadCliente(models.Model):
-    id = CompositeKey(columns=['id_cliente', 'id_actividad'])
+    id = CompositeKey(columns=['id_cliente', 'id_actividad', 'id_oferta'])
     id_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, db_column='id_cliente')
     id_actividad = models.ForeignKey(CatalogoActividades, on_delete=models.CASCADE, db_column='id_actividad')
+    id_oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE, db_column='id_oferta')
 
     class Meta:
-        unique_together = (('id_cliente', 'id_actividad'),)
+        unique_together = (('id_cliente', 'id_actividad', 'id_oferta'),)
         managed = False
         db_table = 'actividad_cliente'
 

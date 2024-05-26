@@ -38,3 +38,5 @@ STANDARD_COMUNIDADES_DICT_PATH = BASE_DIR + 'KDD/Procesamiento/diccionario_estan
 DDBB_PATH = BASE_DIR + 'Sistema/bbdd/data/'
 DDBB_CONFIG_PATH = BASE_DIR + 'Sistema/bbdd/config/ddbb_config.txt'
 DDBB_TRIGGER_PATH = BASE_DIR + 'Sistema/bbdd/tool_querys/trigger.sql'
+DDBB_MANTENIMIENTO_ACTIVIDADES_ACTUAL = DDBB_PATH + 'Mantenimiento actividades/actividades_coberturas_actual.xlsx'
+DDBB_MANTENIMIENTO_ACTIVIDADES_UPDATED = DDBB_PATH + 'Mantenimiento actividades/actividades_coberturas_updated.xlsx'

@@ -1,4 +1,5 @@
 INSERT INTO catalogo_sublimites (sublimite) VALUES
+    ('75000'),
 	('90000'),
     ('100000'),
     ('150000'),

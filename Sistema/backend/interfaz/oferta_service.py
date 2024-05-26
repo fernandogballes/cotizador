@@ -8,9 +8,22 @@ import pandas as pd
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from django.db import transaction
 import paths
 
 class OfertaManager:
+    @staticmethod
+    @transaction.atomic
+    def crear_oferta_completa(cif, nombre, volumen_facturacion, provincia, actividades):
+        id_provincia = OfertaManager.select_id_provincia(provincia)
+        provincia_instance = CatalogoProvincias.objects.get(id_provincia=id_provincia)
+        # Crear cliente
+        cliente = Cliente.objects.create(id_cliente=cif, nombre_cliente=nombre, volumen_facturacion=volumen_facturacion, id_provincia=provincia_instance)
+        # Crear oferta
+        oferta = OfertaManager.create_oferta(cliente, provincia, actividades)
+        
+        return oferta
+
     @staticmethod
     def create_suma_asegurada_limite_anualidad(cliente):
         agravada_flag = OfertaManager.extract_agravada_flag(cliente.id_cliente)
@@ -41,10 +54,9 @@ class OfertaManager:
         return suma_asegurada, limite_anualidad
 
     @staticmethod
-    def create_oferta(cliente, provincia):
+    def create_oferta(cliente, provincia, actividades):
         suma_asegurada, limite_anualidad = OfertaManager.create_suma_asegurada_limite_anualidad(cliente)
         semaforo = OfertaManager.predict_semaforo(provincia)
-        print('vuelta semaforo')
         
         oferta = Oferta.objects.create(
             id_cliente=cliente,
@@ -52,6 +64,11 @@ class OfertaManager:
             limite_anualidad=limite_anualidad,
             semaforo=semaforo
         )
+                
+        # Asociar actividades al cliente y la oferta
+        for actividad_id in actividades:
+            actividad_instance = CatalogoActividades.objects.get(id_actividad=actividad_id)
+            ActividadCliente.objects.create(id_cliente=cliente, id_actividad=actividad_instance, id_oferta=oferta)
         
         OfertaManager.create_coberturas_oferta(oferta)
         return oferta
@@ -254,7 +271,7 @@ class OfertaManager:
         if suma_asegurada == 3000000: sublimite = '600000'
         if suma_asegurada >= 4000000 and suma_asegurada <= 10000000: sublimite = '1000000'
         
-        id_cobertura = OfertaManager.select_id_cobertura('RC Contaminación accidental')
+        id_cobertura = OfertaManager.select_id_cobertura('RC ContaminaciOn accidental')
         id_franquicia = OfertaManager.select_franquicia_explotacion(id_oferta)
         id_sublimite = OfertaManager.select_id_sublimite(id_cobertura, sublimite)
         return id_franquicia, id_sublimite
@@ -277,7 +294,7 @@ class OfertaManager:
         if suma_asegurada == 600000: sublimite = '150000'
         if suma_asegurada >= 1000000 and suma_asegurada <= 10000000: sublimite = '300000'
         
-        id_cobertura = OfertaManager.select_id_cobertura('RC Daños a las redes de comunicaciones públicas')
+        id_cobertura = OfertaManager.select_id_cobertura('RC Danos a las redes de comunicaciones publicas')
         id_franquicia = OfertaManager.select_franquicia_explotacion(id_oferta)
         id_sublimite = OfertaManager.select_id_sublimite(id_cobertura, sublimite)
         
