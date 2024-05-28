@@ -176,6 +176,7 @@ def update_database_with_new_data():
 
 def load_initial_data():
     try:
+        print('Introduciendo actividades y coberturas...')
         # Leer el archivo fuente
         initial_df = pd.read_excel(paths.DDBB_MANTENIMIENTO_ACTIVIDADES_ACTUAL)
         # Convertir 'AGRAVADO' a boolean

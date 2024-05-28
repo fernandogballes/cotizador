@@ -25,17 +25,18 @@ const ViewOfferDetails = () => {
 
     return (
         <div>
-            <h2>Offer Details</h2>
-            <p><strong>Client Name:</strong> {offer.nombre_cliente}</p>
-            <p><strong>Sum Insured:</strong> {offer.suma_asegurada}</p>
-            <p><strong>Annual Limit:</strong> {offer.limite_anualidad}</p>
-            <h3>Coverages</h3>
+            <h2>Detalles de la oferta</h2>
+            <p><strong>Nombre:</strong> {offer.nombre_cliente}</p>
+            <p><strong>Semáforo:</strong> {offer.semaforo}</p>
+            <p><strong>Suma asegurada:</strong> {offer.suma_asegurada}</p>
+            <p><strong>Límite por anualidad:</strong> {offer.limite_anualidad}</p>
+            <h3>Coberturas</h3>
             <ul>
                 {offer.coberturas.map((coverage, index) => (
                     <li key={index}>
-                        <p><strong>Coverage Name:</strong> {coverage.nombre_cobertura}</p>
-                        <p><strong>Deductible:</strong> {coverage.franquicia}</p>
-                        <p><strong>Sub-limit:</strong> {coverage.sublimite}</p>
+                        <p><strong>Cobertura:</strong> {coverage.nombre_cobertura}</p>
+                        <p><strong>Franquicia:</strong> {coverage.franquicia}</p>
+                        <p><strong>Sublimite:</strong> {coverage.sublimite}</p>
                     </li>
                 ))}
             </ul>

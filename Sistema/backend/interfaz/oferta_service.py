@@ -10,6 +10,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from django.db import transaction
 import paths
+from django.db.models import Q
 
 class OfertaManager:
     @staticmethod
@@ -18,10 +19,11 @@ class OfertaManager:
         id_provincia = OfertaManager.select_id_provincia(provincia)
         provincia_instance = CatalogoProvincias.objects.get(id_provincia=id_provincia)
         # Crear cliente
-        cliente = Cliente.objects.create(id_cliente=cif, nombre_cliente=nombre, volumen_facturacion=volumen_facturacion, id_provincia=provincia_instance)
+        cliente = Cliente.objects.create(id_cliente=cif.lower(), nombre_cliente=nombre.lower(), volumen_facturacion=volumen_facturacion, id_provincia=provincia_instance)
         # Crear oferta
         oferta = OfertaManager.create_oferta(cliente, provincia, actividades)
-        
+        new_values = OfertaManager.use_semaforo(oferta)
+
         return oferta
 
     @staticmethod
@@ -110,6 +112,85 @@ class OfertaManager:
         
         return predicted_semaforo
 
+    @staticmethod
+    def use_semaforo(oferta):
+        try:
+            # Obtener el valor del semaforo
+            semaforo = Oferta.objects.get(id_oferta=oferta.id_oferta).semaforo
+            # Obtener la cobertura de RC Accidentes de trabajo
+            rc_accidentes_cobertura = CatalogoCoberturas.objects.get(nombre_cobertura='RC Accidentes de trabajo')
+            # Obtener la oferta cobertura específica
+            oferta_cobertura = OfertaCobertura.objects.get(id_oferta=oferta, id_cobertura=rc_accidentes_cobertura)
+
+            # Obtener el valor del sublimite y la suma asegurada
+            sublimite_actual = oferta_cobertura.id_sublimite.sublimite
+            suma_asegurada_actual = oferta.suma_asegurada
+
+            # Calcular el nuevo sublimite y la nueva suma asegurada
+            new_sublimite_id = OfertaManager.new_accidentes_trabajo_sublimite_semaforo(sublimite_actual, semaforo)
+            new_suma_asegurada = OfertaManager.new_suma_asegurada_semaforo(suma_asegurada_actual, new_sublimite_id)
+
+            # Actualizar los valores en la base de datos
+            oferta_cobertura.id_sublimite = CatalogoSublimites.objects.get(id_sublimite=new_sublimite_id)
+            oferta_cobertura.save()
+
+            oferta.suma_asegurada = new_suma_asegurada
+            oferta.save()
+
+            return {
+                'nueva_suma_asegurada': new_suma_asegurada,
+                'nuevo_sublimite': new_sublimite_id
+            }
+
+        except CatalogoCoberturas.DoesNotExist:
+            return {'error': 'La cobertura RC Accidentes de trabajo no existe'}
+        except OfertaCobertura.DoesNotExist:
+            return {'error': 'La oferta no tiene la cobertura RC Accidentes de trabajo'}
+        except Exception as e:
+            return {'error': str(e)}
+
+    
+    @staticmethod
+    def new_accidentes_trabajo_sublimite_semaforo(sublimite_actual, semaforo):
+        # Obtener el valor máximo permitido para RC Accidentes de trabajo
+        max_sublimite = CatalogoSublimites.objects.filter(
+            sublimitecobertura__id_cobertura__nombre_cobertura='RC Accidentes de trabajo'
+        ).order_by('-sublimite').first().sublimite
+
+        if semaforo == 1:
+            # Incremento del 40%
+            nuevo_sublimite_valor = sublimite_actual * 1.4
+        elif semaforo == 2:
+            # Incremento del 20%
+            nuevo_sublimite_valor = sublimite_actual * 1.2
+        elif semaforo == 3:
+            return sublimite_actual
+        else:
+            return sublimite_actual
+
+        # Comprobar si el nuevo sublimite supera el máximo permitido
+        if nuevo_sublimite_valor > max_sublimite:
+            return CatalogoSublimites.objects.get(
+                Q(sublimite=max_sublimite),
+                Q(sublimitecobertura__id_cobertura__nombre_cobertura='RC Accidentes de trabajo')
+            ).id_sublimite
+
+        # Buscar el valor superior más cercano en sublimite_cobertura
+        sublimite_superior = CatalogoSublimites.objects.filter(
+            Q(sublimite__gte=nuevo_sublimite_valor),
+            Q(sublimitecobertura__id_cobertura__nombre_cobertura='RC Accidentes de trabajo')
+        ).order_by('sublimite').first()
+        
+        if sublimite_superior:
+            return sublimite_superior.id_sublimite
+        else:
+            return sublimite_actual  
+
+    @staticmethod
+    def new_suma_asegurada_semaforo(suma_asegurada_actual, sublimite_accidentes):
+        if suma_asegurada_actual < 2 * sublimite_accidentes:
+            return 2 * sublimite_accidentes
+        return suma_asegurada_actual
 
     @staticmethod
     def create_coberturas_oferta(oferta):
@@ -117,13 +198,13 @@ class OfertaManager:
         ids_coberturas, agravada_flag = OfertaManager.extract_coberturas(id_cliente)
         suma_asegurada = oferta.suma_asegurada
         volumen_facturacion = oferta.id_cliente.volumen_facturacion
-        print(f"Creating OfertaCobertura: id_cliente={id_cliente}, id_oferta={oferta.id_oferta}, agravada_flag={agravada_flag}, suma asegurada={suma_asegurada}, volumen facturacion={volumen_facturacion}, ids_coberturas={ids_coberturas}")
+        # print(f"Creating OfertaCobertura: id_cliente={id_cliente}, id_oferta={oferta.id_oferta}, agravada_flag={agravada_flag}, suma asegurada={suma_asegurada}, volumen facturacion={volumen_facturacion}, ids_coberturas={ids_coberturas}")
         
         try:
             if (id_cobertura := OfertaManager.select_id_cobertura('RC Explotacion')) in ids_coberturas:
                 id_franquicia, id_sublimite = OfertaManager.rc_explotacion(volumen_facturacion, suma_asegurada, agravada_flag)
                 OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
-            
+
             if (id_cobertura := OfertaManager.select_id_cobertura('RC Accidentes de trabajo')) in ids_coberturas:
                 id_franquicia, id_sublimite = OfertaManager.rc_accidentes_de_trabajo(suma_asegurada, agravada_flag)
                 OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
@@ -156,7 +237,7 @@ class OfertaManager:
                 id_franquicia, id_sublimite = OfertaManager.rc_subsidiaria(oferta.id_oferta)
                 OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
             
-            if (id_cobertura := OfertaManager.select_id_cobertura('RC Danos a redes de comunicaciones publicas')) in ids_coberturas:
+            if (id_cobertura := OfertaManager.select_id_cobertura('RC Danos a las redes de comunicaciones publicas')) in ids_coberturas:
                 id_franquicia, id_sublimite = OfertaManager.rc_danos_redes_de_comunicaciones_publicas(oferta.id_oferta, suma_asegurada)
                 OfertaManager.create_oferta_cobertura(oferta, id_cobertura, id_franquicia, id_sublimite)
         
@@ -207,10 +288,10 @@ class OfertaManager:
     def rc_accidentes_de_trabajo(suma_asegurada, agravada_flag):
         franquicia = 'Sin franquicia'
         # Sin agravado
-        if (suma_asegurada == 150000 or suma_asegurada == 300000) and not agravada_flag: sublimite = '150000'
-        if suma_asegurada == 600000 and not agravada_flag: sublimite = '300000'
-        if suma_asegurada >= 1000000 and suma_asegurada <= 6000000 and not agravada_flag: sublimite = '600000'
-        if suma_asegurada == 8000000 and not agravada_flag: sublimite = '750000'
+        if (suma_asegurada == 150000 or suma_asegurada == 300000): sublimite = '150000'
+        if suma_asegurada == 600000: sublimite = '300000'
+        if suma_asegurada >= 1000000 and suma_asegurada <= 6000000: sublimite = '600000'
+        if suma_asegurada == 8000000: sublimite = '750000'
         # Con agravado
         if (suma_asegurada == 1000000 or suma_asegurada == 2000000) and agravada_flag: sublimite = '600000'
         if suma_asegurada >= 3000000 and suma_asegurada <= 10000000 and agravada_flag: sublimite = '750000'
@@ -269,7 +350,7 @@ class OfertaManager:
         if suma_asegurada >= 3000000 and suma_asegurada <= 6000000 and not agravada_flag: sublimite = '600000'
         if suma_asegurada == 10000000 or suma_asegurada == 8000000: sublimite = '2000000'
         if suma_asegurada == 2000000 and agravada_flag: sublimite = '600000'
-        if suma_asegurada >= 3000000 and suma_asegurada <= 6000000 and agravada_flag: sublimite = '100000'
+        if suma_asegurada >= 3000000 and suma_asegurada <= 6000000 and agravada_flag: sublimite = '1000000'
         
         id_cobertura = OfertaManager.select_id_cobertura('RC Trabajos en caliente')
         id_franquicia = OfertaManager.select_id_franquicia(id_cobertura, franquicia)
@@ -297,7 +378,7 @@ class OfertaManager:
         if suma_asegurada == 3000000: sublimite = '600000'
         if suma_asegurada >= 4000000 and suma_asegurada <= 10000000: sublimite = '1000000'
         
-        id_cobertura = OfertaManager.select_id_cobertura('RC ContaminaciOn accidental')
+        id_cobertura = OfertaManager.select_id_cobertura('RC Contaminacion accidental')
         id_franquicia = OfertaManager.select_franquicia_explotacion(id_oferta)
         id_sublimite = OfertaManager.select_id_sublimite(id_cobertura, sublimite)
         return id_franquicia, id_sublimite

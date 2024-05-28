@@ -15,7 +15,7 @@ const Register = () => {
     setError('');
     setMessage('');
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/register/', {  // URL de registro actualizada
+      const response = await axios.post('http://127.0.0.1:8000/api/register/', {
         username,
         password,
       });
@@ -23,7 +23,7 @@ const Register = () => {
         setMessage('User created successfully. You can now login.');
         setTimeout(() => {
           navigate('/login');
-        }, 2000); // Redirigir después de 2 segundos
+        }, 2000);
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.');

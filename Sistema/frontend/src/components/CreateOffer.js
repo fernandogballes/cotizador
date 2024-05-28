@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreateOffer = () => {
   const [activities, setActivities] = useState([]);
@@ -14,6 +15,10 @@ const CreateOffer = () => {
     provincia: '',
     actividades: []
   });
+  const [message, setMessage] = useState('');
+  const [messageColor, setMessageColor] = useState('');  
+  const [createdOfferId, setCreatedOfferId] = useState(null);  // Estado para almacenar el ID de la oferta creada
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -73,14 +78,25 @@ const CreateOffer = () => {
     e.preventDefault();
     const dataToSend = {
       ...formData,
-      volumen_facturacion: parseFloat(formData.volumen_facturacion),  // Ensure volume_facturacion is a float
-      actividades: selectedActivityIds  // Ensure activities are sent as ids
+      volumen_facturacion: parseFloat(formData.volumen_facturacion),  
+      actividades: selectedActivityIds  
     };
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/crear_oferta_completa/', dataToSend);
+      setMessage('Oferta creada exitosamente');
+      setMessageColor('green');
+      setCreatedOfferId(response.data.oferta_id);  // Almacenar el ID de la oferta creada
       console.log('Oferta creada exitosamente:', response.data);
     } catch (error) {
+      setMessage('Error creando la oferta');
+      setMessageColor('red');
       console.error('Error creating offer:', error);
+    }
+  };
+
+  const handleMessageClick = () => {
+    if (messageColor === 'green' && createdOfferId) {
+      navigate(`/view-offer-details/${createdOfferId}`);
     }
   };
 
@@ -119,18 +135,13 @@ const CreateOffer = () => {
           <label>Provincia:</label>
           <select value={selectedProvince} onChange={handleProvinceChange}>
             <option value="" disabled>Seleccionar provincia</option>
-            {provinces.map((province, index) => (
-              <option key={index} value={province.nombre_provincia}>
+            {provinces.map((province) => (
+              <option key={province.nombre_provincia} value={province.nombre_provincia}>
                 {province.nombre_provincia}
               </option>
             ))}
           </select>
         </div>
-        {selectedProvince && (
-          <div>
-            <strong>Provincia seleccionada:</strong> {selectedProvince}
-          </div>
-        )}
         <div>
           <label>Actividades:</label>
           <select value="" onChange={handleActivityChange}>
@@ -146,7 +157,7 @@ const CreateOffer = () => {
           <strong>Actividades seleccionadas:</strong>
           <ul>
             {selectedActivities.map((activity, index) => (
-              <li key={index} onClick={() => removeActivity(activity)} style={{ cursor: 'pointer' }}>
+              <li key={`${activity}-${index}`} onClick={() => removeActivity(activity)} style={{ cursor: 'pointer' }}>
                 {activity}
               </li>
             ))}
@@ -154,6 +165,7 @@ const CreateOffer = () => {
         </div>
         <button type="submit">Crear Oferta</button>
       </form>
+      {message && <p style={{ color: messageColor, cursor: messageColor === 'green' ? 'pointer' : 'default' }} onClick={handleMessageClick}>{message}</p>}
     </div>
   );
 };

@@ -1,87 +1,20 @@
--- inserts franquicias RC Accidentes de trabajo
+-- inserts franquicias RC Explotacion, RC Post-trabajos, RC Locativa, RC Contaminacion accidental, RC Danos a las redes de comunicaciones publicas
 INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 1, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Accidentes de trabajo';
+SELECT franquicia.id_franquicia, cobertura.id_cobertura
+FROM catalogo_franquicias AS franquicia
+JOIN catalogo_coberturas AS cobertura ON cobertura.nombre_cobertura IN ('RC Explotacion', 'RC Post-trabajos', 'RC Locativa', 'RC Contaminacion accidental', 'RC Danos a las redes de comunicaciones publicas')
+WHERE franquicia.franquicia IN ('300 a 600', '600 a 1500', '1500 a 3000', '3000 a 6000');
 
--- inserts franquicias RC Conducciones
+-- inserts franquicias RC Derribos, RC Conducciones, RC Trabajos en caliente
 INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 6, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Conducciones';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 7, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Conducciones';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 8, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Conducciones';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 9, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Conducciones';
+SELECT franquicia.id_franquicia, cobertura.id_cobertura
+FROM catalogo_franquicias AS franquicia
+JOIN catalogo_coberturas AS cobertura ON cobertura.nombre_cobertura IN ('RC Derribos', 'RC Conducciones', 'RC Trabajos en caliente')
+WHERE franquicia.franquicia IN ('1500', '10% minimo 1500 maximo 3000', '20% minimo 1500 maximo 3000', '20% minimo 3000 maximo 6000');
 
--- inserts franquicias RC Contaminacion accidental
+-- inserts franquicias RC Subsidiaria, RC Accidentes de trabajo
 INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 2, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Contaminacion accidental';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 3, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Contaminacion accidental';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 4, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Contaminacion accidental';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 5, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Contaminacion accidental';
-
--- inserts franquicias RC Danos a las redes de comunicaciones publicas
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 2, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Danos a las redes de comunicaciones publicas';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 3, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Danos a las redes de comunicaciones publicas';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 4, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Danos a las redes de comunicaciones publicas';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 5, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Danos a las redes de comunicaciones publicas';
-
--- inserts franquicias RC Derribos
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 6, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Derribos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 7, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Derribos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 8, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Derribos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 9, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Derribos';
-
--- inserts franquicias RC Explotacion
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 2, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Explotacion';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 3, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Explotacion';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 4, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Explotacion';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 5, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Explotacion';
-
--- inserts franquicias RC Locativa
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 2, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Locativa';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 3, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Locativa';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 4, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Locativa';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 5, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Locativa';
-
--- inserts franquicias RC Post-trabajos
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 2, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Post-trabajos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 3, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Post-trabajos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 4, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Post-trabajos';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 5, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Post-trabajos';
-
--- inserts franquicias RC Subsidiaria
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 1, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Subsidiaria';
-
--- inserts franquicias RC Trabajos en Caliente
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 6, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Trabajos en Caliente';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 7, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Trabajos en Caliente';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 8, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Trabajos en Caliente';
-INSERT INTO franquicia_cobertura (id_franquicia, id_cobertura)
-SELECT 9, id_cobertura FROM catalogo_coberturas WHERE nombre_cobertura = 'RC Trabajos en Caliente';
+SELECT franquicia.id_franquicia, cobertura.id_cobertura
+FROM catalogo_franquicias AS franquicia
+JOIN catalogo_coberturas AS cobertura ON cobertura.nombre_cobertura IN ('RC Subsidiaria', 'RC Accidentes de trabajo')
+WHERE franquicia.franquicia = 'Sin franquicia';

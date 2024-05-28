@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import jwtDecode from 'jwt-decode'; // Actualizar esta línea
+import jwtDecode from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -32,15 +32,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log('AuthContext initialized');
     if (authTokens) {
       setUser(jwtDecode(authTokens.access));
+      console.log('User authenticated:', jwtDecode(authTokens.access));
+    } else {
+      console.log('No auth tokens found');
     }
     setLoading(false);
   }, [authTokens]);
 
   return (
     <AuthContext.Provider value={{ user, loginUser, logoutUser, authTokens }}>
-      {loading ? null : children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

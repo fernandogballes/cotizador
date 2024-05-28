@@ -14,7 +14,7 @@ const Login = () => {
     setError('');
     try {
       await loginUser(username, password);
-      navigate('/');
+      navigate('/menu');
     } catch (err) {
       setError('Invalid username or password');
     }

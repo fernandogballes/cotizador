@@ -13,5 +13,6 @@ urlpatterns = [
     path('cliente/<str:id_cliente>/ofertas/', ofertas_por_cliente, name='ofertas-por-cliente'),
     path('actividades/', actividades_list, name='actividades-list'),
     path('provincias/', provincias_list, name='provincias-list'),
-    path('register/', register_user, name='register_user'),  # Asegúrate de que esta línea esté presente
+    path('register/', register_user, name='register_user'),
+    path('crear_oferta_completa/', crear_oferta_completa, name='crear-oferta-completa'),  # Asegúrate de que esta línea esté presente
 ]

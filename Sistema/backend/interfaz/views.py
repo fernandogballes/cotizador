@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import *
@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from rest_framework import generics
 import json
+from rest_framework.permissions import IsAuthenticated
 
 class OfertaListCreateView(generics.ListCreateAPIView):
     queryset = Oferta.objects.all()
@@ -95,6 +96,7 @@ def oferta_detalle_completo(request, id_oferta):
             "nombre_cliente": oferta.id_cliente.nombre_cliente,
             "suma_asegurada": oferta.suma_asegurada,
             "limite_anualidad": oferta.limite_anualidad,
+            "semaforo": oferta.semaforo,
             "coberturas": cobertura_data
         }
         
@@ -143,6 +145,7 @@ def actividades_list(request):
         data = []
         for actividad in actividades:
             data.append({
+                "id_actividad": actividad.id_actividad,  # Incluye el ID de la actividad
                 "nombre_actividad": actividad.nombre_actividad
             })
         return Response(data, status=status.HTTP_200_OK)
