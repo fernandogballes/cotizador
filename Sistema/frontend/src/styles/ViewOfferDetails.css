@@ -1,5 +1,3 @@
-/* ViewOfferDetails.css */
-
 .view-offer-details-container {
     text-align: center;
     padding: 20px;
@@ -48,23 +46,34 @@
     text-align: center;
 }
 
-.details-container p,
-.coverages-container p {
-    margin: 10px 0;
+.client-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.coverages-container ul {
-    list-style-type: none;
-    padding: 0;
+.semaforo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 20px;
+    position: relative;
+    top: -20px; /* Move the semaforo container up */
+    left: -10px; /* Move the semaforo container to the left */
 }
 
-.coverages-container ul li {
-    background-color: #eee;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 4px;
+.semaforo-circle {
+    width: 70px; /* Larger size for the outer circle */
+    height: 70px;
+    border-radius: 50%;
+    position: relative;
 }
 
-.coverages-container ul li p {
-    margin: 5px 0;
+.semaforo-circle-inner {
+    width: 60px; /* Smaller size for the inner circle */
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Centering the inner circle */
+    left: 5px;
 }

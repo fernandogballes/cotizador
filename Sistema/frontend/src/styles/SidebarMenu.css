@@ -52,7 +52,6 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 750px; /* Push it to the bottom */
     width: 100%; /* Full width */
     text-align: left; /* Align text to the left */
     display: block;

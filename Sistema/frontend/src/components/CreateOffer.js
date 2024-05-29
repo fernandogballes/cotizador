@@ -102,6 +102,10 @@ const CreateOffer = () => {
     }
   };
 
+  const capitalizeWords = (str) => {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+  };
+
   return (
     <div className="create-offer-container">
       <SidebarMenu /> {/* Add the SidebarMenu component */}
@@ -142,7 +146,7 @@ const CreateOffer = () => {
             <option value="" disabled>Seleccionar provincia</option>
             {provinces.map((province) => (
               <option key={province.nombre_provincia} value={province.nombre_provincia}>
-                {province.nombre_provincia}
+                {capitalizeWords(province.nombre_provincia)}
               </option>
             ))}
           </select>
@@ -163,7 +167,7 @@ const CreateOffer = () => {
           <ul>
             {selectedActivities.map((activity, index) => (
               <li key={`${activity}-${index}`} onClick={() => removeActivity(activity)} style={{ cursor: 'pointer' }}>
-                {activity}
+                {activity} <span className="remove-icon">&times;</span>
               </li>
             ))}
           </ul>

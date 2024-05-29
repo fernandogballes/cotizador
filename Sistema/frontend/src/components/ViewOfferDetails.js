@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import SidebarMenu from './SidebarMenu'; // Import the SidebarMenu component
 import '../styles/ViewOfferDetails.css'; // Import the CSS file
-import SidebarMenu from './SidebarMenu.js'; // Import the SidebarMenu component
 
 const ViewOfferDetails = () => {
     const { id } = useParams();
@@ -25,6 +25,19 @@ const ViewOfferDetails = () => {
         return <div>Loading...</div>;
     }
 
+    const getSemaforoColor = (semaforo) => {
+        switch (semaforo) {
+            case 1:
+                return 'red';
+            case 2:
+                return 'yellow';
+            case 3:
+                return 'green';
+            default:
+                return 'grey';
+        }
+    };
+
     return (
         <div className="view-offer-details-container">
             <SidebarMenu /> {/* Add the SidebarMenu component */}
@@ -33,10 +46,19 @@ const ViewOfferDetails = () => {
             </div>
             <div className="details-container">
                 <h3>Datos del cliente</h3>
-                <p><strong>Nombre:</strong> {offer.nombre_cliente}</p>
-                <p><strong>Semáforo:</strong> {offer.semaforo}</p>
-                <p><strong>Suma asegurada:</strong> {offer.suma_asegurada} €</p>
-                <p><strong>Límite por anualidad:</strong> {offer.limite_anualidad} €</p>
+                <div className="client-details">
+                    <div>
+                        <p><strong>Nombre:</strong> {offer.nombre_cliente}</p>
+                        <p><strong>Semáforo:</strong> {offer.semaforo}</p>
+                        <p><strong>Suma asegurada:</strong> {offer.suma_asegurada} €</p>
+                        <p><strong>Límite por anualidad:</strong> {offer.limite_anualidad} €</p>
+                    </div>
+                    <div className="semaforo-container">
+                        <div className="semaforo-circle" style={{ backgroundColor: 'black' }}>
+                            <div className="semaforo-circle-inner" style={{ backgroundColor: getSemaforoColor(offer.semaforo) }}></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div className="coverages-container">
                 <h3>Coberturas</h3>

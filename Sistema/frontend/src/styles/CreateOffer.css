@@ -92,10 +92,45 @@
     padding: 10px;
     border-radius: 4px;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.create-offer-form ul li .remove-icon {
+    color: red;
+    font-size: 25px; /* Increase the font size for a bigger cross */
+    margin-left: 10px;
 }
 
 .create-offer-form .message {
     font-size: 14px;
     margin-top: 10px;
     text-align: center;
+}
+
+.semaforo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.semaforo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+}
+
+.semaforo-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-top: 10px;
 }
