@@ -18,14 +18,14 @@
     padding: 10px 20px;
     margin-bottom: 20px;
     display: flex;
-    justify-content: center; /* Center the text */
     align-items: center;
 }
 
-.header h1 {
+.header h2 {
     color: white; /* Ensure the text color is white */
     margin: 0;
     font-size: 24px;
+    padding-left: 30px; /* Adjust padding to move the title */
 }
 
 .search-container,

@@ -1,0 +1,63 @@
+/* SidebarMenu.css */
+
+.hamburger-icon {
+    font-size: 30px;
+    cursor: pointer;
+    position: absolute;
+    top: 5px; /* Adjust the top position as needed */
+    left: 10px;
+    color: white;
+    z-index: 1000; /* Ensure it's on top */
+}
+
+.sidebar-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: 60px 20px;
+    transition: transform 0.3s ease;
+    transform: translateX(-300px); /* Move it out of the viewport */
+    z-index: 999; /* Ensure it's on top */
+}
+
+.sidebar-menu.open {
+    transform: translateX(0); /* Move it into the viewport when open */
+}
+
+.sidebar-menu a {
+    color: white; /* Ensure the text is white */
+    text-decoration: none;
+    padding: 10px 0;
+    width: 100%;
+    text-align: left;
+    display: block; /* Ensure links are block elements */
+}
+
+.sidebar-menu a:hover {
+    background-color: #575757;
+}
+
+.logout-button {
+    background-color: #e53935; /* Red color */
+    color: white;
+    font-size: 16px; /* Adjust font size */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 750px; /* Push it to the bottom */
+    width: 100%; /* Full width */
+    text-align: left; /* Align text to the left */
+    display: block;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}

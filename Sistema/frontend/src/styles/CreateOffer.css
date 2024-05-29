@@ -18,7 +18,7 @@
     padding: 10px 20px;
     margin-bottom: 20px;
     display: flex;
-    justify-content: center; /* Center the text */
+    justify-content: flex-start; /* Align the text to the left */
     align-items: center;
 }
 
@@ -26,6 +26,7 @@
     color: white; /* Ensure the text color is white */
     margin: 0;
     font-size: 24px;
+    margin-left: 50px; /* Adjust this value to move the title to the right */
 }
 
 .create-offer-form {

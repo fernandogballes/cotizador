@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import SidebarMenu from './SidebarMenu'; // Import the SidebarMenu component
 import '../styles/ViewOffers.css'; // Import the CSS file
 
 const ViewOffers = () => {
@@ -48,8 +49,9 @@ const ViewOffers = () => {
 
   return (
     <div className="view-offers-container">
+      <SidebarMenu /> {/* Add the SidebarMenu component */}
       <div className="header">
-        <h1>Ofertas disponibles</h1>
+        <h2>Ofertas disponibles</h2>
       </div>
       <div className="search-container">
         <h2>Buscar ofertas</h2>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import SidebarMenu from './SidebarMenu'; // Import the SidebarMenu component
 import '../styles/CreateOffer.css'; // Import the CSS file
 
 const CreateOffer = () => {
@@ -103,6 +104,7 @@ const CreateOffer = () => {
 
   return (
     <div className="create-offer-container">
+      <SidebarMenu /> {/* Add the SidebarMenu component */}
       <div className="header">
         <h2>Crear oferta</h2>
       </div>
