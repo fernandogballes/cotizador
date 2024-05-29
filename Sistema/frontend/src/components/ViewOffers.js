@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import '../styles/ViewOffers.css'; // Import the CSS file
 
 const ViewOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -46,11 +47,14 @@ const ViewOffers = () => {
   };
 
   return (
-    <div>
-      <h1>Available Offers</h1>
-      <div>
+    <div className="view-offers-container">
+      <div className="header">
+        <h1>Ofertas disponibles</h1>
+      </div>
+      <div className="search-container">
+        <h2>Buscar ofertas</h2>
         <label>
-          Search by Client ID (CIF/DNI):
+          Cliente (CIF/DNI):
           <input 
             type="text" 
             value={clientId} 
@@ -59,7 +63,7 @@ const ViewOffers = () => {
           />
         </label>
         <label>
-          Search by Offer ID:
+          ID Oferta:
           <input 
             type="text" 
             value={offerId} 
@@ -67,21 +71,39 @@ const ViewOffers = () => {
             disabled={clientId !== ''} // Disable if clientId is not empty
           />
         </label>
-        <button onClick={filterOffers}>Search</button>
+        <button onClick={filterOffers}>Buscar</button>
       </div>
-      <ul>
-        {filteredOffers.length > 0 ? (
-          filteredOffers.map(offer => (
-            <li key={offer.id_oferta}>
-              <Link to={`/view-offer-details/${offer.id_oferta}`}>
-                Offer ID: {offer.id_oferta}, Client ID: {offer.id_cliente}, Client Name: {offer.nombre_cliente}
-              </Link>
-            </li>
-          ))
-        ) : (
-          <li>No offers found.</li>
-        )}
-      </ul>
+      <div className="results-container">
+        <h2>Resultados</h2>
+        <table className="results-table">
+          <thead>
+            <tr>
+              <th>ID Oferta</th>
+              <th>ID Cliente</th>
+              <th>Nombre cliente</th>
+              <th>Detalles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOffers.length > 0 ? (
+              filteredOffers.map(offer => (
+                <tr key={offer.id_oferta}>
+                  <td>{offer.id_oferta}</td>
+                  <td>{offer.id_cliente}</td>
+                  <td>{offer.nombre_cliente}</td>
+                  <td>
+                    <Link to={`/view-offer-details/${offer.id_oferta}`}>Ver detalles</Link>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No se han encontrado ofertas.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

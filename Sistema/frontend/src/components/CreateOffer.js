@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/CreateOffer.css'; // Import the CSS file
 
 const CreateOffer = () => {
   const [activities, setActivities] = useState([]);
@@ -83,7 +84,7 @@ const CreateOffer = () => {
     };
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/crear_oferta_completa/', dataToSend);
-      setMessage('Oferta creada exitosamente');
+      setMessage('Oferta creada exitosamente. Pulsa para ver el resultado');
       setMessageColor('green');
       setCreatedOfferId(response.data.oferta_id);  // Almacenar el ID de la oferta creada
       console.log('Oferta creada exitosamente:', response.data);
@@ -101,9 +102,11 @@ const CreateOffer = () => {
   };
 
   return (
-    <div>
-      <h2>Crear Oferta</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="create-offer-container">
+      <div className="header">
+        <h2>Crear oferta</h2>
+      </div>
+      <form className="create-offer-form" onSubmit={handleSubmit}>
         <div>
           <label>CIF/DNI:</label>
           <input
@@ -163,9 +166,9 @@ const CreateOffer = () => {
             ))}
           </ul>
         </div>
-        <button type="submit">Crear Oferta</button>
+        <button type="submit">Crear oferta</button>
       </form>
-      {message && <p style={{ color: messageColor, cursor: messageColor === 'green' ? 'pointer' : 'default' }} onClick={handleMessageClick}>{message}</p>}
+      {message && <p className="message" style={{ color: messageColor, cursor: messageColor === 'green' ? 'pointer' : 'default' }} onClick={handleMessageClick}>{message}</p>}
     </div>
   );
 };

@@ -1,0 +1,70 @@
+/* ViewOfferDetails.css */
+
+.view-offer-details-container {
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 100vh; /* Ensure the container takes the full height of the viewport */
+    background-color: #f7f7f7; /* Light background color */
+}
+
+.header {
+    background: linear-gradient(to bottom, #e53935, #d32f2f);
+    color: white;
+    width: 100%;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* Center the text */
+    align-items: center;
+}
+
+.header h2 {
+    color: white; /* Ensure the text color is white */
+    margin: 0;
+    font-size: 24px;
+}
+
+.details-container,
+.coverages-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.details-container h3,
+.coverages-container h3 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.details-container p,
+.coverages-container p {
+    margin: 10px 0;
+}
+
+.coverages-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.coverages-container ul li {
+    background-color: #eee;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.coverages-container ul li p {
+    margin: 5px 0;
+}
