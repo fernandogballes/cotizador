@@ -109,3 +109,7 @@
 .results-table a:hover {
     text-decoration: underline;
 }
+
+.uppercase {
+    text-transform: uppercase;
+}

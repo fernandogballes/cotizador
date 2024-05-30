@@ -110,12 +110,13 @@ def atr_process_all_2003_2013(folders_path):
 
         for file in excel_files:
             file_path = os.path.join(path, file)    
-            df = atr_multi_sheets_files_2003_2013(file_path, folder) # MODIFICAR FORMA DE OBTENER EL AÑO
+            df = atr_multi_sheets_files_2003_2013(file_path)
             result_df = pd.concat([result_df, df])
 
     return result_df
 
-def atr_multi_sheets_files_2003_2013(file, anio):
+def atr_multi_sheets_files_2003_2013(file):
+    anio='1'
     xls = pd.ExcelFile(file)
     sheet_names = xls.sheet_names
     df_all = pd.read_excel(file, sheet_name=sheet_names)
@@ -123,14 +124,17 @@ def atr_multi_sheets_files_2003_2013(file, anio):
     process_df = pd.DataFrame()
 
     for sheet_name, df in df_all.items():
-
         localidad = unidecode(df.iloc[1,0]).lower()
+
+        if str(df.iloc[1, 9]).startswith("Año "): anio = df.iloc[1,9]
+        else: anio = df.iloc[1,11]
+
+        anio = anio[4:]
 
         if anio < '2009': df_filtered = atr_process_2003_2008(df)
         else: df_filtered = atr_process_2009_2013(df)
-
+            
         df_filtered['provincia'] = localidad
-
         process_df = pd.concat([process_df, df_filtered])
 
     process_df['comunidad_autonoma'] = localidad

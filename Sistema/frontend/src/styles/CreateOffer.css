@@ -1,5 +1,3 @@
-/* CreateOffer.css */
-
 .create-offer-container {
     text-align: center;
     padding: 20px;
@@ -62,6 +60,16 @@
     margin-bottom: 15px;
 }
 
+.activity-select .select__control {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.activity-select .select__menu {
+    z-index: 2; /* Ensure the dropdown menu appears above other elements */
+}
+
 .create-offer-form button {
     background-color: #e53935; /* Red color */
     color: white;
@@ -107,30 +115,4 @@
     font-size: 14px;
     margin-top: 10px;
     text-align: center;
-}
-
-.semaforo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 20px;
-}
-
-.semaforo {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-}
-
-.semaforo-circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin-top: 10px;
 }

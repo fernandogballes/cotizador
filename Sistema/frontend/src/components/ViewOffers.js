@@ -91,8 +91,8 @@ const ViewOffers = () => {
               filteredOffers.map(offer => (
                 <tr key={offer.id_oferta}>
                   <td>{offer.id_oferta}</td>
-                  <td>{offer.id_cliente}</td>
-                  <td>{offer.nombre_cliente}</td>
+                  <td className="uppercase">{offer.id_cliente}</td>
+                  <td className="uppercase">{offer.nombre_cliente}</td>
                   <td>
                     <Link to={`/view-offer-details/${offer.id_oferta}`}>Ver detalles</Link>
                   </td>

@@ -48,7 +48,7 @@ const ViewOfferDetails = () => {
                 <h3>Datos del cliente</h3>
                 <div className="client-details">
                     <div>
-                        <p><strong>Nombre:</strong> {offer.nombre_cliente}</p>
+                        <p><strong>Nombre:</strong> <span className="client-name">{offer.nombre_cliente}</span></p>
                         <p><strong>Semáforo:</strong> {offer.semaforo}</p>
                         <p><strong>Suma asegurada:</strong> {offer.suma_asegurada} €</p>
                         <p><strong>Límite por anualidad:</strong> {offer.limite_anualidad} €</p>

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select';
 import SidebarMenu from './SidebarMenu'; // Import the SidebarMenu component
 import '../styles/CreateOffer.css'; // Import the CSS file
 
 const CreateOffer = () => {
   const [activities, setActivities] = useState([]);
   const [provinces, setProvinces] = useState([]);
-  const [selectedActivities, setSelectedActivities] = useState([]);
   const [selectedActivityIds, setSelectedActivityIds] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [formData, setFormData] = useState({
@@ -27,7 +27,8 @@ const CreateOffer = () => {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/actividades/');
         setActivities(response.data);
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Error fetching activities:', error);
       }
     };
@@ -50,30 +51,15 @@ const CreateOffer = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleActivityChange = (e) => {
-    const selectedActivityId = parseInt(e.target.value);
-    if (!selectedActivityIds.includes(selectedActivityId)) {
-      const selectedActivityName = activities.find(activity => activity.id_actividad === selectedActivityId).nombre_actividad;
-      setSelectedActivities([...selectedActivities, selectedActivityName]);
-      setSelectedActivityIds([...selectedActivityIds, selectedActivityId]);
-      setFormData({ ...formData, actividades: [...selectedActivityIds, selectedActivityId] });
-    }
+  const handleActivityChange = (selectedOptions) => {
+    const selectedActivityIds = selectedOptions.map(option => option.value);
+    setSelectedActivityIds(selectedActivityIds);
+    setFormData({ ...formData, actividades: selectedActivityIds });
   };
 
   const handleProvinceChange = (e) => {
     setSelectedProvince(e.target.value);
     setFormData({ ...formData, provincia: e.target.value });
-  };
-
-  const removeActivity = (activity) => {
-    const index = selectedActivities.indexOf(activity);
-    if (index > -1) {
-      const updatedActivities = selectedActivities.filter((_, i) => i !== index);
-      const updatedActivityIds = selectedActivityIds.filter((_, i) => i !== index);
-      setSelectedActivities(updatedActivities);
-      setSelectedActivityIds(updatedActivityIds);
-      setFormData({ ...formData, actividades: updatedActivityIds });
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -105,6 +91,11 @@ const CreateOffer = () => {
   const capitalizeWords = (str) => {
     return str.replace(/\b\w/g, char => char.toUpperCase());
   };
+
+  const activityOptions = activities.map(activity => ({
+    value: activity.id_actividad,
+    label: activity.nombre_actividad
+  }));
 
   return (
     <div className="create-offer-container">
@@ -153,24 +144,15 @@ const CreateOffer = () => {
         </div>
         <div>
           <label>Actividades:</label>
-          <select value="" onChange={handleActivityChange}>
-            <option value="" disabled>Seleccionar actividad</option>
-            {activities.map((activity) => (
-              <option key={activity.id_actividad} value={activity.id_actividad}>
-                {activity.nombre_actividad}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <strong>Actividades seleccionadas:</strong>
-          <ul>
-            {selectedActivities.map((activity, index) => (
-              <li key={`${activity}-${index}`} onClick={() => removeActivity(activity)} style={{ cursor: 'pointer' }}>
-                {activity} <span className="remove-icon">&times;</span>
-              </li>
-            ))}
-          </ul>
+          <Select
+            isMulti
+            options={activityOptions}
+            value={activityOptions.filter(option => selectedActivityIds.includes(option.value))}
+            onChange={handleActivityChange}
+            placeholder="Seleccionar actividad"
+            className="activity-select"
+            classNamePrefix="select"
+          />
         </div>
         <button type="submit">Crear oferta</button>
       </form>

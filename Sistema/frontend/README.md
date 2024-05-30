@@ -77,3 +77,4 @@ npm install react-router-dom axios jwt-decode
 npm audit
 npm audit fix --force
 python 'C:\\Users\\garci\\proyectos\\cotizador\\Sistema\\backend\\manage.py' createsuperuser
+npm install react-select

@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  load_database:
+    build:
+      context: .
+      dockerfile: docker/load_database/Dockerfile
+    depends_on:
+      - db
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - load_database
+    environment:
+      DATABASE_NAME: mydatabase
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  procesamiento:
+    build:
+      context: .
+      dockerfile: docker/procesamiento/Dockerfile
+    depends_on:
+      - db
+
+  KDD:
+    build:
+      context: .
+      dockerfile: docker/KDD/Dockerfile
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
