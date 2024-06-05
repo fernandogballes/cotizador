@@ -137,6 +137,9 @@ class OfertaManager:
             oferta.suma_asegurada = new_suma_asegurada
             oferta.save()
 
+            oferta.limite_anualidad = new_suma_asegurada*2
+            oferta.save()
+
             return {
                 'nueva_suma_asegurada': new_suma_asegurada,
                 'nuevo_sublimite': new_sublimite_id
@@ -159,17 +162,17 @@ class OfertaManager:
 
         if semaforo == 1:
             # Incremento del 40%
-            nuevo_sublimite_valor = sublimite_actual * 1.4
+            nuevo_sublimite_valor = float(sublimite_actual) * 1.4
         elif semaforo == 2:
             # Incremento del 20%
-            nuevo_sublimite_valor = sublimite_actual * 1.2
+            nuevo_sublimite_valor = float(sublimite_actual) * 1.2
         elif semaforo == 3:
-            return sublimite_actual
+            return str(sublimite_actual)
         else:
-            return sublimite_actual
+            return str(sublimite_actual)
 
         # Comprobar si el nuevo sublimite supera el máximo permitido
-        if nuevo_sublimite_valor > max_sublimite:
+        if str(nuevo_sublimite_valor) > max_sublimite:
             return CatalogoSublimites.objects.get(
                 Q(sublimite=max_sublimite),
                 Q(sublimitecobertura__id_cobertura__nombre_cobertura='RC Accidentes de trabajo')
@@ -177,7 +180,7 @@ class OfertaManager:
 
         # Buscar el valor superior más cercano en sublimite_cobertura
         sublimite_superior = CatalogoSublimites.objects.filter(
-            Q(sublimite__gte=nuevo_sublimite_valor),
+            Q(sublimite__gte=str(nuevo_sublimite_valor)),
             Q(sublimitecobertura__id_cobertura__nombre_cobertura='RC Accidentes de trabajo')
         ).order_by('sublimite').first()
         
@@ -195,7 +198,8 @@ class OfertaManager:
     @staticmethod
     def create_coberturas_oferta(oferta):
         id_cliente = oferta.id_cliente.id_cliente
-        ids_coberturas, agravada_flag = OfertaManager.extract_coberturas(id_cliente)
+        id_oferta = oferta.id_oferta
+        ids_coberturas, agravada_flag = OfertaManager.extract_coberturas(id_cliente, id_oferta)
         suma_asegurada = oferta.suma_asegurada
         volumen_facturacion = oferta.id_cliente.volumen_facturacion
         # print(f"Creating OfertaCobertura: id_cliente={id_cliente}, id_oferta={oferta.id_oferta}, agravada_flag={agravada_flag}, suma asegurada={suma_asegurada}, volumen facturacion={volumen_facturacion}, ids_coberturas={ids_coberturas}")
@@ -255,9 +259,9 @@ class OfertaManager:
         return oferta_cobertura
 
     @staticmethod
-    def extract_coberturas(id_cliente):
+    def extract_coberturas(id_cliente, id_oferta):
         ids_coberturas = list(ActividadCobertura.objects.filter(
-            id_actividad__in=ActividadCliente.objects.filter(id_cliente=id_cliente).values_list('id_actividad')
+            id_actividad__in=ActividadCliente.objects.filter(id_cliente=id_cliente, id_oferta=id_oferta).values_list('id_actividad')
         ).values_list('id_cobertura', flat=True).distinct())
         agravada_flag = OfertaManager.extract_agravada_flag(id_cliente)
         return ids_coberturas, agravada_flag

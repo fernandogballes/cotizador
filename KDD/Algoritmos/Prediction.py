@@ -12,7 +12,7 @@ import joblib
 import json
 from sklearn.metrics import classification_report, confusion_matrix
 
-def prepare_data(data):
+def prepare_data(data,option=0):
     # Identificar las columnas categóricas y numéricas
     categorical_cols = ['provincia', 'comunidad_autonoma']
     numeric_cols = ['anio']
@@ -50,6 +50,7 @@ def predict_random_forest(work_data):
     print(classification_report(y_test, y_pred))
 
     # Guardar el modelo y el preprocesador para futuras predicciones
+    #if option == 1:
     if input('0. No guardar modelo\n1. Guardar modelo\nSeleccione: ') == '1':
         joblib.dump(rf_classifier, paths.TRAINED_PREDICTION_MODEL_PATH)
         joblib.dump(preprocessor, paths.PREPROCESSOR_PATH)

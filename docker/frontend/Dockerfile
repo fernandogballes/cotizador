@@ -1,10 +1,11 @@
+# docker/frontend/Dockerfile
 FROM node:14
 
 WORKDIR /app
 
-COPY frontend/package.json frontend/package.json
+COPY Sistema/frontend/package.json package.json
 RUN npm install
 
-COPY frontend/ frontend/
+COPY Sistema/frontend/ .
 
 CMD ["npm", "start"]
