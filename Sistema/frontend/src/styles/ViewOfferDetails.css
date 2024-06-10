@@ -1,0 +1,83 @@
+.view-offer-details-container {
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 100vh; /* Ensure the container takes the full height of the viewport */
+    background-color: #f7f7f7; /* Light background color */
+}
+
+.header {
+    background: linear-gradient(to bottom, #e53935, #d32f2f);
+    color: white;
+    width: 100%;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* Center the text */
+    align-items: center;
+}
+
+.header h2 {
+    color: white; /* Ensure the text color is white */
+    margin: 0;
+    font-size: 24px;
+}
+
+.details-container,
+.coverages-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.details-container h3,
+.coverages-container h3 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.client-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.semaforo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 20px;
+    position: relative;
+    top: -20px; /* Move the semaforo container up */
+    left: -10px; /* Move the semaforo container to the left */
+}
+
+.semaforo-circle {
+    width: 70px; /* Larger size for the outer circle */
+    height: 70px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.semaforo-circle-inner {
+    width: 60px; /* Smaller size for the inner circle */
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Centering the inner circle */
+    left: 5px;
+}
+
+.client-name {
+    text-transform: uppercase;
+}
