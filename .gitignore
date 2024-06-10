@@ -1,3 +1,15 @@
+!KDD\Procesamiento\diccionario_comunidades_provincias.json
+!KDD\Procesamiento\diccionario_estandar_comunidades.json
+
+!KDD\Algoritmos\cluster_data\cluster_data.xlsx
+!KDD\Algoritmos\cluster_data\semaforo_dict.json
+
+!KDD\Algoritmos\trained_models\preprocessor.joblib
+!KDD\Algoritmos\trained_models\random_forest_cluster_predictor.joblib
+!KDD\Algoritmos\trained_models\random_forest_distance_matrix.joblib
+
+!KDD\data\GOLD\gold.xlsx
+
 /csv
 /resultados
 /results
@@ -7,11 +19,8 @@
 /data
 /RAW
 /SILVER
-/GOLD
 tempCodeRunnerFile.py
 /tool_querys
-/cluster_data
-/trained_models
 
 *.joblib
 
