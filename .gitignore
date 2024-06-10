@@ -4,12 +4,14 @@
 /ocupacion
 /accidentes
 /datos
-/resultados_raw
-/SuicideData
-/SuicideRateData
-/UnemploymentData
+/data
+/RAW
+/SILVER
 tempCodeRunnerFile.py
 /tool_querys
+
+*.joblib
+
 
 *.csv
 *.xls
@@ -164,3 +166,36 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+!KDD\Procesamiento\diccionario_comunidades_provincias.json
+!KDD\Procesamiento\diccionario_estandar_comunidades.json
+
+!KDD\Algoritmos\cluster_data\cluster_data.xlsx
+!KDD\Algoritmos\cluster_data\semaforo_dict.json
+
+!KDD\Algoritmos\trained_models\preprocessor.joblib
+!KDD\Algoritmos\trained_models\random_forest_cluster_predictor.joblib
+!KDD\Algoritmos\trained_models\random_forest_distance_matrix.joblib
+
+!KDD\data\GOLD\gold.xlsx

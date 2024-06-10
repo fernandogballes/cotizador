@@ -1,0 +1,80 @@
+/* MainMenu.css */
+
+.main-menu-container {
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 100vh; /* Ensure the container takes the full height of the viewport */
+    background-color: #ffffff; /* Light background color */
+}
+
+.main-menu-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/public/resources/logo.png'); /* Path to your logo */
+    background-repeat: no-repeat;
+    background-size: 600px; /* Adjust size to make the logo smaller */
+    background-position: center;
+    opacity: 0.2; /* Temporarily increase opacity to ensure visibility */
+    z-index: 1; /* Ensure the background stays behind the content */
+}
+
+.header {
+    background: linear-gradient(to bottom, #e53935, #d32f2f);
+    color: white;
+    width: 100%;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* Center the text */
+    align-items: center;
+}
+
+.header h1 {
+    color: white; /* Ensure the text color is white */
+    margin: 0;
+    font-size: 24px;
+}
+
+.main-menu-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    z-index: 1;
+    margin-top: 300px; /* Add margin to lower the content */
+}
+
+h1 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #e53935; /* Red color */
+    color: white;
+    font-size: 18px; /* Larger font size */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Make buttons take full width of the parent */
+    max-width: 200px; /* Set a maximum width for the buttons */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+}
+
+button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
