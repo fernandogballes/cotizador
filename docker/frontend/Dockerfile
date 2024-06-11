@@ -1,11 +1,16 @@
 # docker/frontend/Dockerfile
-FROM node:14
+FROM node:18
 
 WORKDIR /app
 
-COPY Sistema/frontend/package.json package.json
+# Copia solo los archivos de configuración de npm
+COPY Sistema/frontend/package*.json ./
+
+# Instala las dependencias de npm
 RUN npm install
 
+# Copia el resto del código del frontend
 COPY Sistema/frontend/ .
 
-CMD ["npm", "start"]
+# Inicia la aplicación
+CMD ["sh", "-c", "npm install && npm start"]
