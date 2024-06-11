@@ -10,6 +10,7 @@ class CatalogoProvincias(models.Model):
 
     class Meta:
         db_table = 'catalogo_provincias'
+        managed = False
 
     def __str__(self):
         return self.provincia
@@ -22,6 +23,7 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'clientes'
+        managed = False
 
     def __str__(self):
         return self.nombre_cliente
@@ -33,6 +35,7 @@ class CatalogoActividades(models.Model):
 
     class Meta:
         db_table = 'catalogo_actividades'
+        managed = False
 
     def __str__(self):
         return self.nombre_actividad
@@ -43,6 +46,7 @@ class CatalogoCoberturas(models.Model):
 
     class Meta:
         db_table = 'catalogo_coberturas'
+        managed = False
 
     def __str__(self):
         return self.nombre_cobertura
@@ -56,6 +60,7 @@ class Oferta(models.Model):
 
     class Meta:
         db_table = 'ofertas'
+        managed = False
 
     def __str__(self):
         return f'Oferta {self.id_oferta} - Cliente {self.id_cliente}'
@@ -66,6 +71,7 @@ class CatalogoFranquicias(models.Model):
 
     class Meta:
         db_table = 'catalogo_franquicias'
+        managed = False
 
     def __str__(self):
         return self.franquicia
@@ -76,6 +82,7 @@ class CatalogoSublimites(models.Model):
 
     class Meta:
         db_table = 'catalogo_sublimites'
+        managed = False
 
     def __str__(self):
         return self.sublimite
